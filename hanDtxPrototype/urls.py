@@ -22,5 +22,7 @@ from hanDtxPrototypeApp import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path("/app_login/", views.login)
+    path("/app_login/", views.login),
+    path("/app_get_emotion_diary_records/", views.get_emotion_diary_records),
+    path("/app_update_emotion_diary_records/", views.update_emotion_diary_records)
 ]
