@@ -11,7 +11,7 @@ class UserInfo(models.Model):
     user_pw = models.CharField(max_length=128, verbose_name="user 비밀번호")
     name = models.CharField(max_length=10, verbose_name="이름")
     address = models.TextField(verbose_name="주소")
-    created = models.DateTimeField(default=timezone.now(), verbose_name="생성 날짜")
+    created = models.DateTimeField(default=timezone.now, verbose_name="생성 날짜")
 
 
 class LoginInfo(models.Model):
