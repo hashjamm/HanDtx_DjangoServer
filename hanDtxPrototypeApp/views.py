@@ -198,3 +198,68 @@ def update_issue_checking_survey(request):
 
         response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
         return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 이슈 확인 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_issue_checking_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnaireIssueChecking.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"checkbox1": obj.checkbox_1,
+                         "checkbox2": obj.checkbox_2,
+                         "checkbox3": obj.checkbox_3,
+                         "checkbox4": obj.checkbox_4,
+                         "checkbox5": obj.checkbox_5,
+                         "checkbox6": obj.checkbox_6,
+                         "checkbox7": obj.checkbox_7,
+                         "checkbox8": obj.checkbox_8,
+                         "checkbox9": obj.checkbox_9,
+                         "checkbox10": obj.checkbox_10,
+                         "checkbox11": obj.checkbox_11,
+                         "checkbox12": obj.checkbox_12,
+                         "checkbox13": obj.checkbox_13,
+                         "checkbox14": obj.checkbox_14,
+                         "checkbox15": obj.checkbox_15,
+                         "checkbox16": obj.checkbox_16,
+                         "checkbox17": obj.checkbox_17,
+                         "checkbox18": obj.checkbox_18,
+                         "checkbox19": obj.checkbox_19,
+                         "checkbox20": obj.checkbox_20,
+                         "checkbox21": obj.checkbox_21,
+                         "inputText": obj.input_text}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"checkbox1": None,
+                         "checkbox2": None,
+                         "checkbox3": None,
+                         "checkbox4": None,
+                         "checkbox5": None,
+                         "checkbox6": None,
+                         "checkbox7": None,
+                         "checkbox8": None,
+                         "checkbox9": None,
+                         "checkbox10": None,
+                         "checkbox11": None,
+                         "checkbox12": None,
+                         "checkbox13": None,
+                         "checkbox14": None,
+                         "checkbox15": None,
+                         "checkbox16": None,
+                         "checkbox17": None,
+                         "checkbox18": None,
+                         "checkbox19": None,
+                         "checkbox20": None,
+                         "checkbox21": None,
+                         "inputText": None}
+
+        return JsonResponse(response_data, status=400)
+
