@@ -263,3 +263,475 @@ def get_issue_checking_survey(request):
 
         return JsonResponse(response_data, status=400)
 
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_self_diagnosis_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+        update_result_8 = data["result8"]
+        update_result_9 = data["result9"]
+        update_result_10 = data["result10"]
+
+        update_records = QuestionnaireSelfDiagnosis(user_info_id=update_id,
+                                                    date=update_date,
+                                                    result_1=update_result_1,
+                                                    result_2=update_result_2,
+                                                    result_3=update_result_3,
+                                                    result_4=update_result_4,
+                                                    result_5=update_result_5,
+                                                    result_6=update_result_6,
+                                                    result_7=update_result_7,
+                                                    result_8=update_result_8,
+                                                    result_9=update_result_9,
+                                                    result_10=update_result_10)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_self_diagnosis_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnaireSelfDiagnosis.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7,
+                         "result8": obj.result_8,
+                         "result9": obj.result_9,
+                         "result10": obj.result_10}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None,
+                         "result8": None,
+                         "result9": None,
+                         "result10": None}
+
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_well_being_scale_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+
+        update_records = QuestionnaireWellBeingScale(user_info_id=update_id,
+                                                     date=update_date,
+                                                     result_1=update_result_1,
+                                                     result_2=update_result_2,
+                                                     result_3=update_result_3,
+                                                     result_4=update_result_4,
+                                                     result_5=update_result_5,
+                                                     result_6=update_result_6,
+                                                     result_7=update_result_7)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_well_being_scale_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnaireWellBeingScale.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None}
+
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_phq9_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+        update_result_8 = data["result8"]
+        update_result_9 = data["result9"]
+
+        update_records = QuestionnairePHQ9(user_info_id=update_id,
+                                           date=update_date,
+                                           result_1=update_result_1,
+                                           result_2=update_result_2,
+                                           result_3=update_result_3,
+                                           result_4=update_result_4,
+                                           result_5=update_result_5,
+                                           result_6=update_result_6,
+                                           result_7=update_result_7,
+                                           result_8=update_result_8,
+                                           result_9=update_result_9)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_phq9_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnairePHQ9.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7,
+                         "result8": obj.result_8,
+                         "result9": obj.result_9}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None,
+                         "result8": None,
+                         "result9": None}
+
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_gad7_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+
+        update_records = QuestionnaireGAD7(user_info_id=update_id,
+                                           date=update_date,
+                                           result_1=update_result_1,
+                                           result_2=update_result_2,
+                                           result_3=update_result_3,
+                                           result_4=update_result_4,
+                                           result_5=update_result_5,
+                                           result_6=update_result_6,
+                                           result_7=update_result_7)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_gad7_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnaireGAD7.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None}
+
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_pss10_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+        update_result_8 = data["result8"]
+        update_result_9 = data["result9"]
+        update_result_10 = data["result10"]
+
+        update_records = QuestionnairePSS10(user_info_id=update_id,
+                                            date=update_date,
+                                            result_1=update_result_1,
+                                            result_2=update_result_2,
+                                            result_3=update_result_3,
+                                            result_4=update_result_4,
+                                            result_5=update_result_5,
+                                            result_6=update_result_6,
+                                            result_7=update_result_7,
+                                            result_8=update_result_8,
+                                            result_9=update_result_9,
+                                            result_10=update_result_10)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_pss10_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnairePSS10.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7,
+                         "result8": obj.result_8,
+                         "result9": obj.result_9,
+                         "result10": obj.result_10}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None,
+                         "result8": None,
+                         "result9": None,
+                         "result10": None}
+
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
+@csrf_exempt
+@require_POST
+def update_stress_survey(request):
+
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_result_1 = data["result1"]
+        update_result_2 = data["result2"]
+        update_result_3 = data["result3"]
+        update_result_4 = data["result4"]
+        update_result_5 = data["result5"]
+        update_result_6 = data["result6"]
+        update_result_7 = data["result7"]
+        update_result_8 = data["result8"]
+        update_result_9 = data["result9"]
+        update_result_10 = data["result10"]
+
+        update_records = QuestionnaireStress(user_info_id=update_id,
+                                             date=update_date,
+                                             result_1=update_result_1,
+                                             result_2=update_result_2,
+                                             result_3=update_result_3,
+                                             result_4=update_result_4,
+                                             result_5=update_result_5,
+                                             result_6=update_result_6,
+                                             result_7=update_result_7,
+                                             result_8=update_result_8,
+                                             result_9=update_result_9,
+                                             result_10=update_result_10)
+
+        update_records.save()
+
+        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse(response_data, status=400)
+
+
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_stress_survey(request):
+
+
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
+
+        obj = QuestionnaireStress.objects.filter(user_info_id=search_id, date=search_date).get()
+
+        response_data = {"result1": obj.result_1,
+                         "result2": obj.result_2,
+                         "result3": obj.result_3,
+                         "result4": obj.result_4,
+                         "result5": obj.result_5,
+                         "result6": obj.result_6,
+                         "result7": obj.result_7,
+                         "result8": obj.result_8,
+                         "result9": obj.result_9,
+                         "result10": obj.result_10}
+
+        return JsonResponse(response_data, status=200)
+
+    except ObjectDoesNotExist:
+
+        response_data = {"result1": None,
+                         "result2": None,
+                         "result3": None,
+                         "result4": None,
+                         "result5": None,
+                         "result6": None,
+                         "result7": None,
+                         "result8": None,
+                         "result9": None,
+                         "result10": None}
+
+        return JsonResponse(response_data, status=400)

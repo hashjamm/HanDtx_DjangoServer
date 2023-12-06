@@ -88,7 +88,10 @@ DATABASES = {
         "USER": "hashjamm",
         "PASSWORD": "sugar0524",
         "HOST": "112.222.70.85",
-        "PORT": "23306"
+        "PORT": "23306",
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        }
     }
 }
 

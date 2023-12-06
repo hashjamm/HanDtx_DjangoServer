@@ -181,8 +181,6 @@ class QuestionnaireGAD7(models.Model):
     result_5 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="5번 문항 점수")
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="7번 문항 점수")
-    result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="8번 문항 점수")
-    result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="9번 문항 점수")
 
     def save(self, *args, **kwargs):
         latest_record_id_dict = QuestionnaireGAD7.objects.filter(
@@ -221,6 +219,11 @@ class QuestionnairePSS10(models.Model):
         super().save(*args, **kwargs)
 
 
+class ExerciseType(models.Model):
+    id = models.BigAutoField(help_text="ExerciseType pk", primary_key=True)
+    type = models.CharField(max_length=50, unique=True)
+
+
 class QuestionnaireExercise(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireExercise pk", primary_key=True)
     user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
@@ -237,8 +240,8 @@ class QuestionnaireExercise(models.Model):
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="10번 문항 점수")
     result_11 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="11번 문항 점수")
     result_12 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="12번 문항 점수")
-    result_13 = models.CharField(max_length=22, verbose_name="체크 상태 문자열")
-    input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열")
+    result_13_exer_type = models.ManyToManyField(ExerciseType)
+    result_13_ad_exer_type = models.TextField(verbose_name="기타 운동 종목 입력 문자열")
 
     def save(self, *args, **kwargs):
         latest_record_id_dict = QuestionnaireExercise.objects.filter(
@@ -347,8 +350,9 @@ class QuestionnaireNutrition(models.Model):
     result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="8번 문항 점수")
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="10번 문항 점수")
-    input_text_1 = models.TextField(verbose_name="11번 문항 입력 간식 종류")
-    input_text_2 = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="11번 문항 입력 간식 섭취 횟수")
+    result_11_boolean = models.BooleanField(blank=True, default=False, verbose_name="11번 문항 입력 여부")
+    result_11_snack_type = models.TextField(verbose_name="11번 문항 입력 간식 종류")
+    result_11_consume_num = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="11번 문항 입력 간식 섭취 횟수")
 
     def save(self, *args, **kwargs):
         latest_record_id_dict = QuestionnaireNutrition.objects.filter(
