@@ -38,5 +38,9 @@ urlpatterns = [
     path("app_get_pss10_survey/", views.get_pss10_survey),
     path("app_update_pss10_survey/", views.update_pss10_survey),
     path("app_get_stress_survey/", views.get_stress_survey),
-    path("app_update_stress_survey/", views.update_stress_survey)
+    path("app_update_stress_survey/", views.update_stress_survey),
+    path("app_get_exercise_survey/", views.get_exercise_survey),
+    path("app_update_exercise_survey/", views.update_exercise_survey),
+    path("app_get_nutrition_survey/", views.get_nutrition_survey),
+    path("app_update_nutrition_survey/", views.update_nutrition_survey)
 ]
