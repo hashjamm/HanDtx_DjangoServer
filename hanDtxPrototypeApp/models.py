@@ -1,8 +1,7 @@
 # Create your models here.
-from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
-from django.db.models import Max
+from django.db import models, transaction
+from django.utils import timezone
 
 
 class UserInfo(models.Model):
@@ -16,50 +15,31 @@ class UserInfo(models.Model):
 
 class LoginInfo(models.Model):
     id = models.BigAutoField(help_text="LoginInfo pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     login_time = models.DateTimeField(auto_now_add=True, verbose_name="로그인 시간")
 
 
 class EmotionDiaryRecords(models.Model):
     id = models.BigAutoField(help_text="EmotionDiaryRecords pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     score_type_1 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 기분 점수")
-    input_text_type_1 = models.TextField(verbose_name="입력된 기분 텍스트")
+    input_text_type_1 = models.TextField(verbose_name="입력된 기분 텍스트", blank=True, null=True)
     score_type_2 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 불안 점수")
-    input_text_type_2 = models.TextField(verbose_name="입력된 불안 텍스트")
+    input_text_type_2 = models.TextField(verbose_name="입력된 불안 텍스트", blank=True, null=True)
     score_type_3 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 식이 점수")
-    input_text_type_3 = models.TextField(verbose_name="입력된 식이 텍스트")
+    input_text_type_3 = models.TextField(verbose_name="입력된 식이 텍스트", blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        existing_records = (
-            EmotionDiaryRecords.objects.filter(user_info_id=self.user_info_id, date=self.date)
-        ).order_by("-id")  # 해당 유저 및 해당 일자에 대하여 + 최신 데이터 일수록 위로 오도록 정렬
-
-        if existing_records.exists():  # 해당 유저 및 해당 일자에 대한 데이터 있는 경우
-            latest_record = existing_records.first()  # 가장 최근 기록을 가져옴
-
-            # 변경된 필드에 새로운 데이터 덮어 쓰기
-            latest_record.score_type_1 = self.score_type_1
-            latest_record.input_text_type_1 = self.input_text_type_1
-            latest_record.score_type_2 = self.score_type_2
-            latest_record.input_text_type_2 = self.input_text_type_2
-            latest_record.score_type_3 = self.score_type_3
-            latest_record.input_text_type_3 = self.input_text_type_3
-
-            latest_record.save()
-
-        else:
-
-            super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireIssueChecking(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireIssueChecking pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     checkbox_1 = models.BooleanField(blank=True, default=False, verbose_name="1번 체크 박스 선택 상태")
     checkbox_2 = models.BooleanField(blank=True, default=False, verbose_name="2번 체크 박스 선택 상태")
@@ -85,20 +65,13 @@ class QuestionnaireIssueChecking(models.Model):
     checkbox_22 = models.BooleanField(blank=True, default=False, verbose_name="22번 체크 박스 선택 상태")
     input_text = models.TextField(blank=True, null=True, verbose_name="22번 체크 박스 입력 텍스트")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = EmotionDiaryRecords.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireSelfDiagnosis(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireSelfDiagnosis pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -111,20 +84,13 @@ class QuestionnaireSelfDiagnosis(models.Model):
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="10번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireSelfDiagnosis.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireWellBeingScale(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireWellBeingScale pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -134,20 +100,13 @@ class QuestionnaireWellBeingScale(models.Model):
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="7번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireWellBeingScale.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnairePHQ9(models.Model):
     id = models.BigAutoField(help_text="QuestionnairePHQ9 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -159,20 +118,13 @@ class QuestionnairePHQ9(models.Model):
     result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="8번 문항 점수")
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="9번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnairePHQ9.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireGAD7(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireGAD7 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -182,20 +134,13 @@ class QuestionnaireGAD7(models.Model):
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="7번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireGAD7.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnairePSS10(models.Model):
     id = models.BigAutoField(help_text="QuestionnairePSS10 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -208,15 +153,8 @@ class QuestionnairePSS10(models.Model):
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="10번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnairePSS10.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class ExerciseType(models.Model):
@@ -226,7 +164,7 @@ class ExerciseType(models.Model):
 
 class QuestionnaireExercise(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireExercise pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(7)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(7)], verbose_name="2번 문항 점수")
@@ -240,82 +178,102 @@ class QuestionnaireExercise(models.Model):
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="10번 문항 점수")
     result_11 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="11번 문항 점수")
     result_12 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="12번 문항 점수")
-    result_13_exer_type = models.ManyToManyField(ExerciseType)
-    result_13_input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열")
+    result_13_exer_type = models.ManyToManyField(ExerciseType, through="QuestionnaireExerciseExerciseType",
+                                                 related_name="exercise_type", null=True)
+    result_13_input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열", null=True)
+
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
     def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireExercise.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
+        with transaction.atomic():
+            super().save(*args, **kwargs)
 
-        if latest_record_id_dict["id__max"] != self.id:
-            return
+            through_model = self.result_13_exer_type.through
+            through_model.objects.filter(questionnaire_exercise=self).delete()
 
-        super().save(*args, **kwargs)
+            exercise_type_objects = [
+                through_model(questionnaire_exercise=self, exercise_type=exercise_type)
+                for exercise_type in self.result_13_exer_type.all()
+            ]
+
+            through_model.objects.bulk_create(exercise_type_objects)
 
 
-class QuestionnaireSmoking(models.Model):
-    id = models.BigAutoField(help_text="QuestionnaireSmoking pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+class QuestionnaireExerciseExerciseType(models.Model):
+    questionnaire_exercise = models.ForeignKey(QuestionnaireExercise, on_delete=models.CASCADE,
+                                               related_name="questionnaire_exercise_relations")
+    exercise_type = models.ForeignKey(ExerciseType, on_delete=models.DO_NOTHING, related_name="exercise_type_relations")
+
+
+class QuestionnaireSmokingDrinking(models.Model):
+    id = models.BigAutoField(help_text="QuestionnaireSmokingDrinking pk", primary_key=True)
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
-    result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="1번 문항 점수")
-    result_2 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(3)],
-                                   verbose_name="2번 문항 점수")
-    result_3 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(7)],
-                                   verbose_name="3번 문항 점수")
-    result_4 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(3)],
-                                   verbose_name="4번 문항 점수")
-    result_5 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                   verbose_name="5번 문항 점수")
-    result_6 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                   verbose_name="6번 문항 점수")
-    result_7 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(3)],
-                                   verbose_name="7번 문항 점수")
-    result_8 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                   verbose_name="8번 문항 점수")
-    result_9 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                   verbose_name="9번 문항 점수")
+    smoking_result_1 = models.IntegerField(blank=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                           verbose_name="1번 흡연 문항 점수")
+    smoking_result_2 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(3)],
+                                           verbose_name="2번 흡연 문항 점수")
+    smoking_result_3 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(7)],
+                                           verbose_name="3번 흡연 문항 점수")
+    smoking_result_4 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(3)],
+                                           verbose_name="4번 흡연 문항 점수")
+    smoking_result_5 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                           verbose_name="5번 흡연 문항 점수")
+    smoking_result_6 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                           verbose_name="6번 흡연 문항 점수")
+    smoking_result_7 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(3)],
+                                           verbose_name="7번 흡연 문항 점수")
+    smoking_result_8 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                           verbose_name="8번 흡연 문항 점수")
+    smoking_result_9 = models.IntegerField(blank=True, null=True,
+                                           validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                           verbose_name="9번 흡연 문항 점수")
+    drinking_result_1 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="1번 음주 문항 점수")
+    drinking_result_2 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="2번 음주 문항 점수")
+    drinking_result_3 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="3번 음주 문항 점수")
+    drinking_result_4 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="4번 음주 문항 점수")
+    drinking_result_5 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="5번 음주 문항 점수")
+    drinking_result_6 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="6번 음주 문항 점수")
+    drinking_result_7 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="7번 음주 문항 점수")
+    drinking_result_8 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="8번 음주 문항 점수")
+    drinking_result_9 = models.IntegerField(blank=True, null=True,
+                                            validators=[MinValueValidator(0), MaxValueValidator(4)],
+                                            verbose_name="9번 음주 문항 점수")
+    drinking_result_10 = models.IntegerField(blank=True, null=True,
+                                             validators=[MinValueValidator(0), MaxValueValidator(2)],
+                                             verbose_name="10번 음주 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireSmoking.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
-
-
-class QuestionnaireDrinking(models.Model):
-    id = models.BigAutoField(help_text="QuestionnaireDrinking pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
-    date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
-    result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
-    result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
-    result_3 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="3번 문항 점수")
-    result_4 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="4번 문항 점수")
-    result_5 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="5번 문항 점수")
-    result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="6번 문항 점수")
-    result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="7번 문항 점수")
-    result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="8번 문항 점수")
-    result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="9번 문항 점수")
-    result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="10번 문항 점수")
-
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireSmoking.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireStress(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireStress pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -325,20 +283,13 @@ class QuestionnaireStress(models.Model):
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="7번 문항 점수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireStress.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireNutrition(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireNutrition pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.DO_NOTHING, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(auto_now_add=True, verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="2번 문항 점수")
@@ -353,12 +304,5 @@ class QuestionnaireNutrition(models.Model):
     result_11_snack_type = models.TextField(verbose_name="11번 문항 입력 간식 종류")
     result_11_consume_num = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="11번 문항 입력 간식 섭취 횟수")
 
-    def save(self, *args, **kwargs):
-        latest_record_id_dict = QuestionnaireNutrition.objects.filter(
-            user_info_id=self.user_info_id, date=self.date).aggregate(
-            Max("id"))  # 해당 유저 및 해당 일자에 대하여 가장 큰 id(가장 최근 기록의 id)
-
-        if latest_record_id_dict["id__max"] != self.id:
-            return
-
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ['user_info_id', 'date']
