@@ -3,17 +3,28 @@ from rest_framework import serializers
 from .models import UserInfo
 from .models import LoginInfo
 from .models import EmotionDiaryRecords
-from .models import QuestionnaireSmoking
-from .models import QuestionnaireStress
-from .models import QuestionnaireDrinking
-from .models import QuestionnaireNutrition
-from .models import QuestionnaireExercise
-from .models import QuestionnaireGAD7
 from .models import QuestionnaireIssueChecking
-from .models import QuestionnairePHQ9
-from .models import QuestionnairePSS10
 from .models import QuestionnaireSelfDiagnosis
 from .models import QuestionnaireWellBeingScale
+from .models import QuestionnairePHQ9
+from .models import QuestionnaireGAD7
+from .models import QuestionnairePSS10
+from .models import ExerciseType
+from .models import QuestionnaireExercise
+from .models import QuestionnaireExerciseExerciseType
+from .models import QuestionnaireSmokingDrinking
+from .models import QuestionnaireStress
+from .models import QuestionnaireNutrition
+
+
+class ExerciseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseType
+
+
+class QuestionnaireExerciseExerciseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionnaireExerciseExerciseType
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -66,14 +77,9 @@ class QuestionnaireExerciseSerializer(serializers.ModelSerializer):
         model = QuestionnaireExercise
 
 
-class QuestionnaireSmokingSerializer(serializers.ModelSerializer):
+class QuestionnaireSmokingDrinkingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = QuestionnaireSmoking
-
-
-class QuestionnaireDrinkingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = QuestionnaireDrinking
+        model = QuestionnaireSmokingDrinking
 
 
 class QuestionnaireStressSerializer(serializers.ModelSerializer):
