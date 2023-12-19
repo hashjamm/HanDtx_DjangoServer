@@ -296,12 +296,12 @@ def update_self_diagnosis_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(self diagnosis) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(self diagnosis) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -373,12 +373,12 @@ def update_well_being_scale_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(well being scale) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(well being scale) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -448,12 +448,12 @@ def update_phq9_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(PHQ9) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(PHQ9) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -523,12 +523,12 @@ def update_gad7_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(GAD7) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(GAD7) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -600,12 +600,12 @@ def update_pss10_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(PSS10) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(PSS10) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -683,12 +683,12 @@ def update_stress_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(stress) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(stress) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -779,12 +779,12 @@ def update_exercise_survey(request):
 
         update_records.result_13_exer_type.set(exer_type_instance_list)
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(exercise) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(exercise) records"}
         return JsonResponse(response_data, status=400)
 
 
@@ -878,12 +878,12 @@ def update_nutrition_survey(request):
 
         update_records.save()
 
-        response_data = {"message": "updated questionnaire(issue checking) records successfully"}
+        response_data = {"message": "updated questionnaire(nutrition) records successfully"}
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        response_data = {"message": "Unexpected error during updating questionnaire(nutrition) records"}
         return JsonResponse(response_data, status=400)
 
 

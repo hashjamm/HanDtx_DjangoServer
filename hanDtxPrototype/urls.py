@@ -42,5 +42,7 @@ urlpatterns = [
     path("app_get_exercise_survey/", views.get_exercise_survey),
     path("app_update_exercise_survey/", views.update_exercise_survey),
     path("app_get_nutrition_survey/", views.get_nutrition_survey),
-    path("app_update_nutrition_survey/", views.update_nutrition_survey)
+    path("app_update_nutrition_survey/", views.update_nutrition_survey),
+    path("app_get_smoking_drinking_survey/", views.get_smoking_drinking_survey),
+    path("app_update_smoking_drinking_survey/", views.update_smoking_drinking_survey)
 ]
