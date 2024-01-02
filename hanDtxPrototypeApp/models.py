@@ -180,7 +180,7 @@ class QuestionnaireExercise(models.Model):
     result_11 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="11번 문항 점수")
     result_12 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="12번 문항 점수")
     result_13_exer_type = models.ManyToManyField(ExerciseType, through="QuestionnaireExerciseExerciseType",
-                                                 related_name="exercise_type", null=True)
+                                                 related_name="exercise_type")
     result_13_input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열", null=True)
 
     class Meta:
