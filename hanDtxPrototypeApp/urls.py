@@ -19,8 +19,13 @@ from django.urls import path, include
 
 from hanDtxPrototypeApp import views
 
+from . import views as test_views
+
+
+app_name = 'hanDtxPrototypeApp'
+
 urlpatterns = [
-    path("hanDtxPrototypeApp/", include('hanDtxPrototypeApp.urls')),
+    path("home/", test_views.home, name="home"),
     path("admin/", admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path("app_login/", views.login),

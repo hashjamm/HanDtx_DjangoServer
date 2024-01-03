@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_POST
+import json
 
 from .models import UserInfo
 from .models import LoginInfo
@@ -37,17 +38,32 @@ from .serializers import QuestionnaireWellBeingScaleSerializer
 
 # Create your views here.
 
+@csrf_exempt
+@require_POST
+def home(request):
+    if request.method == 'POST':
+        post_data = request.POST
+        response_data = {'status': 'success!!', 'message': 'POST request processed successfully'}
+
+        return HttpResponse(response_data['status'], status=200)
+
+    else:
+
+        return HttpResponse('Method Not Allowed', status=405)
+
 
 @csrf_exempt
 @require_POST
 def login(request):
     try:
-        data = JSONParser().parse(request)
-        search_id = data["user_id"]
+        # data = JSONParser().parse(request)
+        search_id = request.POST.get("user_id")
+        search_pw = request.POST.get("user_pw")
+
         obj = UserInfo.objects.get(user_id=search_id)
 
-        if data["user_pw"] == obj.user_pw:
-            response_data = {"message": "로그인 성공", "code": 1}
+        if search_pw == obj.user_pw:
+            response_data = {"message": "로그인 성공"}
 
             # 로그인 성공 시 LoginInfo 모델에 로그인 기록 저장
             login_info = LoginInfo(user_info_id=obj.user_id)  # user_info_id에 user_id 값을 저장
@@ -55,12 +71,12 @@ def login(request):
 
             return JsonResponse(response_data, status=200)
         else:
-            response_data = {"message": "패스워드가 일치하지 않습니다.", "code": 2}
-            return JsonResponse(response_data, status=400)
+            response_data = {"message": "패스워드가 일치하지 않습니다."}
+            return JsonResponse(response_data, status=201)
 
     except ObjectDoesNotExist:
-        response_data = {"message": "등록되지 않은 사용자 계정입니다.", "code": 3}
-        return JsonResponse(response_data, status=400)
+
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 감정 다이어리 정보 전체를 반환
@@ -932,119 +948,119 @@ def get_nutrition_survey(request):
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
-    @csrf_exempt
-    @require_POST
-    def update_smoking_drinking_survey(request):
-        try:
-            data = JSONParser().parse(request)
-            update_id = data["user_id"]
-            update_date = data["date"]
-            update_smoking_result_1 = data["smoking_result1"]
-            update_smoking_result_2 = data["smoking_result2"]
-            update_smoking_result_3 = data["smoking_result3"]
-            update_smoking_result_4 = data["smoking_result4"]
-            update_smoking_result_5 = data["smoking_result5"]
-            update_smoking_result_6 = data["smoking_result6"]
-            update_smoking_result_7 = data["smoking_result7"]
-            update_smoking_result_8 = data["smoking_result8"]
-            update_smoking_result_9 = data["smoking_result9"]
-            update_drinking_result_1 = data["drinking_result1"]
-            update_drinking_result_2 = data["drinking_result2"]
-            update_drinking_result_3 = data["drinking_result3"]
-            update_drinking_result_4 = data["drinking_result4"]
-            update_drinking_result_5 = data["drinking_result5"]
-            update_drinking_result_6 = data["drinking_result6"]
-            update_drinking_result_7 = data["drinking_result7"]
-            update_drinking_result_8 = data["drinking_result8"]
-            update_drinking_result_9 = data["drinking_result9"]
-            update_drinking_result_10 = data["drinking_result10"]
+@csrf_exempt
+@require_POST
+def update_smoking_drinking_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        update_id = data["user_id"]
+        update_date = data["date"]
+        update_smoking_result_1 = data["smoking_result1"]
+        update_smoking_result_2 = data["smoking_result2"]
+        update_smoking_result_3 = data["smoking_result3"]
+        update_smoking_result_4 = data["smoking_result4"]
+        update_smoking_result_5 = data["smoking_result5"]
+        update_smoking_result_6 = data["smoking_result6"]
+        update_smoking_result_7 = data["smoking_result7"]
+        update_smoking_result_8 = data["smoking_result8"]
+        update_smoking_result_9 = data["smoking_result9"]
+        update_drinking_result_1 = data["drinking_result1"]
+        update_drinking_result_2 = data["drinking_result2"]
+        update_drinking_result_3 = data["drinking_result3"]
+        update_drinking_result_4 = data["drinking_result4"]
+        update_drinking_result_5 = data["drinking_result5"]
+        update_drinking_result_6 = data["drinking_result6"]
+        update_drinking_result_7 = data["drinking_result7"]
+        update_drinking_result_8 = data["drinking_result8"]
+        update_drinking_result_9 = data["drinking_result9"]
+        update_drinking_result_10 = data["drinking_result10"]
 
-            update_records = QuestionnaireSmokingDrinking(user_info_id=update_id,
-                                                          date=update_date,
-                                                          smoking_result_1=update_smoking_result_1,
-                                                          smoking_result_2=update_smoking_result_2,
-                                                          smoking_result_3=update_smoking_result_3,
-                                                          smoking_result_4=update_smoking_result_4,
-                                                          smoking_result_5=update_smoking_result_5,
-                                                          smoking_result_6=update_smoking_result_6,
-                                                          smoking_result_7=update_smoking_result_7,
-                                                          smoking_result_8=update_smoking_result_8,
-                                                          smoking_result_9=update_smoking_result_9,
-                                                          drinking_result_1=update_drinking_result_1,
-                                                          drinking_result_2=update_drinking_result_2,
-                                                          drinking_result_3=update_drinking_result_3,
-                                                          drinking_result_4=update_drinking_result_4,
-                                                          drinking_result_5=update_drinking_result_5,
-                                                          drinking_result_6=update_drinking_result_6,
-                                                          drinking_result_7=update_drinking_result_7,
-                                                          drinking_result_8=update_drinking_result_8,
-                                                          drinking_result_9=update_drinking_result_9,
-                                                          drinking_result_10=update_drinking_result_10)
+        update_records = QuestionnaireSmokingDrinking(user_info_id=update_id,
+                                                      date=update_date,
+                                                      smoking_result_1=update_smoking_result_1,
+                                                      smoking_result_2=update_smoking_result_2,
+                                                      smoking_result_3=update_smoking_result_3,
+                                                      smoking_result_4=update_smoking_result_4,
+                                                      smoking_result_5=update_smoking_result_5,
+                                                      smoking_result_6=update_smoking_result_6,
+                                                      smoking_result_7=update_smoking_result_7,
+                                                      smoking_result_8=update_smoking_result_8,
+                                                      smoking_result_9=update_smoking_result_9,
+                                                      drinking_result_1=update_drinking_result_1,
+                                                      drinking_result_2=update_drinking_result_2,
+                                                      drinking_result_3=update_drinking_result_3,
+                                                      drinking_result_4=update_drinking_result_4,
+                                                      drinking_result_5=update_drinking_result_5,
+                                                      drinking_result_6=update_drinking_result_6,
+                                                      drinking_result_7=update_drinking_result_7,
+                                                      drinking_result_8=update_drinking_result_8,
+                                                      drinking_result_9=update_drinking_result_9,
+                                                      drinking_result_10=update_drinking_result_10)
 
-            update_records.save()
+        update_records.save()
 
-            response_data = {"message": "updated questionnaire(smoking & drinking) records successfully"}
-            return JsonResponse(response_data, status=200)
+        response_data = {"message": "updated questionnaire(smoking & drinking) records successfully"}
+        return JsonResponse(response_data, status=200)
 
-        except ObjectDoesNotExist:
+    except ObjectDoesNotExist:
 
-            response_data = {"message": "Unexpected error during updating questionnaire(smoking & drinking) records"}
-            return JsonResponse(response_data, status=400)
+        response_data = {"message": "Unexpected error during updating questionnaire(smoking & drinking) records"}
+        return JsonResponse(response_data, status=400)
 
 
-    # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
-    @csrf_exempt
-    @require_POST
-    def get_smoking_drinking_survey(request):
-        try:
-            data = JSONParser().parse(request)
-            search_id = data["user_id"]
-            search_date = data["date"]
+# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
+@csrf_exempt
+@require_POST
+def get_smoking_drinking_survey(request):
+    try:
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_date = data["date"]
 
-            obj = QuestionnaireSmokingDrinking.objects.filter(user_info_id=search_id, date=search_date).get()
+        obj = QuestionnaireSmokingDrinking.objects.filter(user_info_id=search_id, date=search_date).get()
 
-            response_data = {"smoking_result1": obj.smoking_result_1,
-                             "smoking_result2": obj.smoking_result_2,
-                             "smoking_result3": obj.smoking_result_3,
-                             "smoking_result4": obj.smoking_result_4,
-                             "smoking_result5": obj.smoking_result_5,
-                             "smoking_result6": obj.smoking_result_6,
-                             "smoking_result7": obj.smoking_result_7,
-                             "smoking_result8": obj.smoking_result_8,
-                             "smoking_result9": obj.smoking_result_9,
-                             "drinking_result1": obj.drinking_result_1,
-                             "drinking_result2": obj.drinking_result_2,
-                             "drinking_result3": obj.drinking_result_3,
-                             "drinking_result4": obj.drinking_result_4,
-                             "drinking_result5": obj.drinking_result_5,
-                             "drinking_result6": obj.drinking_result_6,
-                             "drinking_result7": obj.drinking_result_7,
-                             "drinking_result8": obj.drinking_result_8,
-                             "drinking_result9": obj.drinking_result_9,
-                             "drinking_result10": obj.drinking_result_10}
+        response_data = {"smoking_result1": obj.smoking_result_1,
+                         "smoking_result2": obj.smoking_result_2,
+                         "smoking_result3": obj.smoking_result_3,
+                         "smoking_result4": obj.smoking_result_4,
+                         "smoking_result5": obj.smoking_result_5,
+                         "smoking_result6": obj.smoking_result_6,
+                         "smoking_result7": obj.smoking_result_7,
+                         "smoking_result8": obj.smoking_result_8,
+                         "smoking_result9": obj.smoking_result_9,
+                         "drinking_result1": obj.drinking_result_1,
+                         "drinking_result2": obj.drinking_result_2,
+                         "drinking_result3": obj.drinking_result_3,
+                         "drinking_result4": obj.drinking_result_4,
+                         "drinking_result5": obj.drinking_result_5,
+                         "drinking_result6": obj.drinking_result_6,
+                         "drinking_result7": obj.drinking_result_7,
+                         "drinking_result8": obj.drinking_result_8,
+                         "drinking_result9": obj.drinking_result_9,
+                         "drinking_result10": obj.drinking_result_10}
 
-            return JsonResponse(response_data, status=200)
+        return JsonResponse(response_data, status=200)
 
-        except ObjectDoesNotExist:
+    except ObjectDoesNotExist:
 
-            response_data = {"smoking_result1": None,
-                             "smoking_result2": None,
-                             "smoking_result3": None,
-                             "smoking_result4": None,
-                             "smoking_result5": None,
-                             "smoking_result6": None,
-                             "smoking_result7": None,
-                             "smoking_result8": None,
-                             "smoking_result9": None,
-                             "drinking_result1": None,
-                             "drinking_result2": None,
-                             "drinking_result3": None,
-                             "drinking_result4": None,
-                             "drinking_result5": None,
-                             "drinking_result6": None,
-                             "drinking_result7": None,
-                             "drinking_result8": None,
-                             "drinking_result9": None,
-                             "drinking_result10": None}
+        response_data = {"smoking_result1": None,
+                         "smoking_result2": None,
+                         "smoking_result3": None,
+                         "smoking_result4": None,
+                         "smoking_result5": None,
+                         "smoking_result6": None,
+                         "smoking_result7": None,
+                         "smoking_result8": None,
+                         "smoking_result9": None,
+                         "drinking_result1": None,
+                         "drinking_result2": None,
+                         "drinking_result3": None,
+                         "drinking_result4": None,
+                         "drinking_result5": None,
+                         "drinking_result6": None,
+                         "drinking_result7": None,
+                         "drinking_result8": None,
+                         "drinking_result9": None,
+                         "drinking_result10": None}
 
-            return JsonResponse(response_data, status=400)
+        return JsonResponse(response_data, status=400)
