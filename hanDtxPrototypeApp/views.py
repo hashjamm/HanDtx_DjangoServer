@@ -60,12 +60,10 @@ def login(request):
         search_id = request.POST.get("user_id")
         search_pw = request.POST.get("user_pw")
 
-        print(search_id)
-
         obj = UserInfo.objects.get(user_id=search_id)
 
         if search_pw == obj.user_pw:
-            response_data = {"message": "로그인 성공", "code": 1}
+            response_data = {"message": "로그인 성공"}
 
             # 로그인 성공 시 LoginInfo 모델에 로그인 기록 저장
             login_info = LoginInfo(user_info_id=obj.user_id)  # user_info_id에 user_id 값을 저장
@@ -73,15 +71,12 @@ def login(request):
 
             return JsonResponse(response_data, status=200)
         else:
-            response_data = {"message": "패스워드가 일치하지 않습니다.", "code": 2}
-            return JsonResponse(response_data, status=400)
+            response_data = {"message": "패스워드가 일치하지 않습니다."}
+            return JsonResponse(response_data, status=201)
 
     except ObjectDoesNotExist:
 
-        print("aaa")
-
-        response_data = {"message": "등록되지 않은 사용자 계정입니다.", "code": 3}
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 감정 다이어리 정보 전체를 반환
