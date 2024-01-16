@@ -20,7 +20,7 @@ class LoginInfo(models.Model):
     login_time = models.DateTimeField(auto_now_add=True, verbose_name="로그인 시간")
 
 
-class EmotionDiaryRecords(models.Model)
+class EmotionDiaryRecords(models.Model):
     id = models.BigAutoField(help_text="EmotionDiaryRecords pk", primary_key=True)
     user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
     date = models.DateField(verbose_name="입력 날짜")
