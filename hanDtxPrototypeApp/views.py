@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
@@ -56,9 +57,9 @@ def home(request):
 @require_POST
 def login(request):
     try:
-        # data = JSONParser().parse(request)
-        search_id = request.POST.get("user_id")
-        search_pw = request.POST.get("user_pw")
+        data = JSONParser().parse(request)
+        search_id = data["user_id"]
+        search_pw = data["user_pw"]
 
         obj = UserInfo.objects.get(user_id=search_id)
 
@@ -100,14 +101,8 @@ def get_emotion_diary_records(request):
         return JsonResponse(response_data, status=200)
 
     except ObjectDoesNotExist:
-        response_data = {"score1": None,
-                         "inputText1": None,
-                         "score2": None,
-                         "inputText2": None,
-                         "score3": None,
-                         "inputText3": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -141,8 +136,7 @@ def update_emotion_diary_records(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating emotion diary records"}
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -210,8 +204,8 @@ def update_issue_checking_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(issue checking) records"}
+        return JsonResponse([], status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 이슈 확인 설문 응답 정보 전체를 반환
@@ -252,30 +246,30 @@ def get_issue_checking_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"checkbox1": None,
-                         "checkbox2": None,
-                         "checkbox3": None,
-                         "checkbox4": None,
-                         "checkbox5": None,
-                         "checkbox6": None,
-                         "checkbox7": None,
-                         "checkbox8": None,
-                         "checkbox9": None,
-                         "checkbox10": None,
-                         "checkbox11": None,
-                         "checkbox12": None,
-                         "checkbox13": None,
-                         "checkbox14": None,
-                         "checkbox15": None,
-                         "checkbox16": None,
-                         "checkbox17": None,
-                         "checkbox18": None,
-                         "checkbox19": None,
-                         "checkbox20": None,
-                         "checkbox21": None,
-                         "inputText": None}
+        # response_data = {"checkbox1": None,
+        #                  "checkbox2": None,
+        #                  "checkbox3": None,
+        #                  "checkbox4": None,
+        #                  "checkbox5": None,
+        #                  "checkbox6": None,
+        #                  "checkbox7": None,
+        #                  "checkbox8": None,
+        #                  "checkbox9": None,
+        #                  "checkbox10": None,
+        #                  "checkbox11": None,
+        #                  "checkbox12": None,
+        #                  "checkbox13": None,
+        #                  "checkbox14": None,
+        #                  "checkbox15": None,
+        #                  "checkbox16": None,
+        #                  "checkbox17": None,
+        #                  "checkbox18": None,
+        #                  "checkbox19": None,
+        #                  "checkbox20": None,
+        #                  "checkbox21": None,
+        #                  "inputText": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -317,8 +311,8 @@ def update_self_diagnosis_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(self diagnosis) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(self diagnosis) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -347,18 +341,18 @@ def get_self_diagnosis_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None,
-                         "result10": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None,
+        #                  "result10": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -394,8 +388,8 @@ def update_well_being_scale_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(well being scale) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(well being scale) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -421,15 +415,15 @@ def get_well_being_scale_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -469,8 +463,8 @@ def update_phq9_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(PHQ9) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(PHQ9) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -498,17 +492,17 @@ def get_phq9_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -544,8 +538,8 @@ def update_gad7_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(GAD7) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(GAD7) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -571,15 +565,15 @@ def get_gad7_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -621,8 +615,8 @@ def update_pss10_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(PSS10) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(PSS10) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -651,18 +645,18 @@ def get_pss10_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None,
-                         "result10": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None,
+        #                  "result10": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -704,8 +698,8 @@ def update_stress_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(stress) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(stress) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -734,18 +728,18 @@ def get_stress_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None,
-                         "result10": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None,
+        #                  "result10": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -772,7 +766,7 @@ def update_exercise_survey(request):
 
         exer_type_list = [data["exerciseType1"], data["exerciseType2"], data["exerciseType3"]]
 
-        exer_type_instance_list = [QuestionnaireExercise.objects.get(type=exercise_type)[0] for exercise_type in
+        exer_type_instance_list = [ExerciseType.objects.get(type=exercise_type) for exercise_type in
                                    exer_type_list]
 
         update_records = QuestionnaireExercise(user_info_id=update_id,
@@ -800,8 +794,8 @@ def update_exercise_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(exercise) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(exercise) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -836,24 +830,24 @@ def get_exercise_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None,
-                         "result10": None,
-                         "result11": None,
-                         "result12": None,
-                         "exerciseType1": None,
-                         "exerciseType2": None,
-                         "exerciseType3": None,
-                         "inputText": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None,
+        #                  "result10": None,
+        #                  "result11": None,
+        #                  "result12": None,
+        #                  "exerciseType1": None,
+        #                  "exerciseType2": None,
+        #                  "exerciseType3": None,
+        #                  "inputText": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -899,8 +893,8 @@ def update_nutrition_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(nutrition) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(nutrition) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -931,20 +925,20 @@ def get_nutrition_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"result1": None,
-                         "result2": None,
-                         "result3": None,
-                         "result4": None,
-                         "result5": None,
-                         "result6": None,
-                         "result7": None,
-                         "result8": None,
-                         "result9": None,
-                         "result10": None,
-                         "snackType": None,
-                         "consumeNum": None}
+        # response_data = {"result1": None,
+        #                  "result2": None,
+        #                  "result3": None,
+        #                  "result4": None,
+        #                  "result5": None,
+        #                  "result6": None,
+        #                  "result7": None,
+        #                  "result8": None,
+        #                  "result9": None,
+        #                  "result10": None,
+        #                  "snackType": None,
+        #                  "consumeNum": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -1004,8 +998,8 @@ def update_smoking_drinking_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"message": "Unexpected error during updating questionnaire(smoking & drinking) records"}
-        return JsonResponse(response_data, status=400)
+        # response_data = {"message": "Unexpected error during updating questionnaire(smoking & drinking) records"}
+        return JsonResponse({}, status=400)
 
 
 # POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 설문 응답 정보 전체를 반환
@@ -1043,24 +1037,24 @@ def get_smoking_drinking_survey(request):
 
     except ObjectDoesNotExist:
 
-        response_data = {"smoking_result1": None,
-                         "smoking_result2": None,
-                         "smoking_result3": None,
-                         "smoking_result4": None,
-                         "smoking_result5": None,
-                         "smoking_result6": None,
-                         "smoking_result7": None,
-                         "smoking_result8": None,
-                         "smoking_result9": None,
-                         "drinking_result1": None,
-                         "drinking_result2": None,
-                         "drinking_result3": None,
-                         "drinking_result4": None,
-                         "drinking_result5": None,
-                         "drinking_result6": None,
-                         "drinking_result7": None,
-                         "drinking_result8": None,
-                         "drinking_result9": None,
-                         "drinking_result10": None}
+        # response_data = {"smoking_result1": None,
+        #                  "smoking_result2": None,
+        #                  "smoking_result3": None,
+        #                  "smoking_result4": None,
+        #                  "smoking_result5": None,
+        #                  "smoking_result6": None,
+        #                  "smoking_result7": None,
+        #                  "smoking_result8": None,
+        #                  "smoking_result9": None,
+        #                  "drinking_result1": None,
+        #                  "drinking_result2": None,
+        #                  "drinking_result3": None,
+        #                  "drinking_result4": None,
+        #                  "drinking_result5": None,
+        #                  "drinking_result6": None,
+        #                  "drinking_result7": None,
+        #                  "drinking_result8": None,
+        #                  "drinking_result9": None,
+        #                  "drinking_result10": None}
 
-        return JsonResponse(response_data, status=400)
+        return JsonResponse({}, status=400)
