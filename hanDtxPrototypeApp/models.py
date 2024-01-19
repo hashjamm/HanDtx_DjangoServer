@@ -66,9 +66,6 @@ class QuestionnaireIssueChecking(models.Model):
     checkbox_22 = models.BooleanField(blank=True, default=False, verbose_name="22번 체크 박스 선택 상태")
     input_text = models.TextField(blank=True, null=True, verbose_name="22번 체크 박스 입력 텍스트")
 
-    class Meta:
-        unique_together = ['user_info_id', 'date']
-
 
 class QuestionnaireSelfDiagnosis(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireSelfDiagnosis pk", primary_key=True)

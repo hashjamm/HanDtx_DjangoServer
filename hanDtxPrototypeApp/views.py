@@ -160,36 +160,31 @@ def update_emotion_diary_records(request):
 @require_POST
 def update_issue_checking_survey(request):
     try:
-        print(request.POST.get("user_id"))
-        print(request.POST.get("date"))
-        print(bool(request.POST.get("checkbox1")))
-        print(bool(request.POST.get("checkbox2")))
-
         update_id = request.POST.get("user_id")
         update_date = request.POST.get("date")
-        update_checkbox_1 = bool(request.POST.get("checkbox1"))
-        update_checkbox_2 = bool(request.POST.get("checkbox2"))
-        update_checkbox_3 = bool(request.POST.get("checkbox3"))
-        update_checkbox_4 = bool(request.POST.get("checkbox4"))
-        update_checkbox_5 = bool(request.POST.get("checkbox5"))
-        update_checkbox_6 = bool(request.POST.get("checkbox6"))
-        update_checkbox_7 = bool(request.POST.get("checkbox7"))
-        update_checkbox_8 = bool(request.POST.get("checkbox8"))
-        update_checkbox_9 = bool(request.POST.get("checkbox9"))
-        update_checkbox_10 = bool(request.POST.get("checkbox10"))
-        update_checkbox_11 = bool(request.POST.get("checkbox11"))
-        update_checkbox_12 = bool(request.POST.get("checkbox12"))
-        update_checkbox_13 = bool(request.POST.get("checkbox13"))
-        update_checkbox_14 = bool(request.POST.get("checkbox14"))
-        update_checkbox_15 = bool(request.POST.get("checkbox15"))
-        update_checkbox_16 = bool(request.POST.get("checkbox16"))
-        update_checkbox_17 = bool(request.POST.get("checkbox17"))
-        update_checkbox_18 = bool(request.POST.get("checkbox18"))
-        update_checkbox_19 = bool(request.POST.get("checkbox19"))
-        update_checkbox_20 = bool(request.POST.get("checkbox20"))
-        update_checkbox_21 = bool(request.POST.get("checkbox21"))
-        update_checkbox_22 = bool(request.POST.get("checkbox22"))
-        update_input_text = bool(request.POST.get("inputText"))
+        update_checkbox_1 = request.POST.get("checkbox1")
+        update_checkbox_2 = request.POST.get("checkbox2")
+        update_checkbox_3 = request.POST.get("checkbox3")
+        update_checkbox_4 = request.POST.get("checkbox4")
+        update_checkbox_5 = request.POST.get("checkbox5")
+        update_checkbox_6 = request.POST.get("checkbox6")
+        update_checkbox_7 = request.POST.get("checkbox7")
+        update_checkbox_8 = request.POST.get("checkbox8")
+        update_checkbox_9 = request.POST.get("checkbox9")
+        update_checkbox_10 = request.POST.get("checkbox10")
+        update_checkbox_11 = request.POST.get("checkbox11")
+        update_checkbox_12 = request.POST.get("checkbox12")
+        update_checkbox_13 = request.POST.get("checkbox13")
+        update_checkbox_14 = request.POST.get("checkbox14")
+        update_checkbox_15 = request.POST.get("checkbox15")
+        update_checkbox_16 = request.POST.get("checkbox16")
+        update_checkbox_17 = request.POST.get("checkbox17")
+        update_checkbox_18 = request.POST.get("checkbox18")
+        update_checkbox_19 = request.POST.get("checkbox19")
+        update_checkbox_20 = request.POST.get("checkbox20")
+        update_checkbox_21 = request.POST.get("checkbox21")
+        update_checkbox_22 = request.POST.get("checkbox22")
+        update_input_text = request.POST.get("inputText")
 
         if not update_id or not update_date:
             return JsonResponse({"message": "update_id and update_date are required"}, status=401)
@@ -241,13 +236,18 @@ def get_issue_checking_survey(request):
         search_id = request.POST.get("user_id")
         search_date = request.POST.get("date")
 
+        print(request.POST.get("user_id"))
+        print(request.POST.get("date"))
+
         if not search_id or not search_date:
             return JsonResponse({"message": "search_id and search_date are required"}, status=401)
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
         questionnaire_obj = QuestionnaireIssueChecking.objects.filter(user_info_id=user_info_obj,
-                                                                      date=search_date).get()
+                                                                      date=search_date).order_by('id').last()
+
+        print(questionnaire_obj)
 
         response_data = {"checkbox1": questionnaire_obj.checkbox_1,
                          "checkbox2": questionnaire_obj.checkbox_2,
@@ -272,19 +272,17 @@ def get_issue_checking_survey(request):
                          "checkbox21": questionnaire_obj.checkbox_21,
                          "inputText": questionnaire_obj.input_text}
 
+        print(response_data)
+
         return JsonResponse(response_data, status=200)
 
     except QuestionnaireIssueChecking.DoesNotExist:
 
         return JsonResponse({"message": "QuestionnaireIssueChecking not found"}, status=402)
 
-    except QuestionnaireIssueChecking.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireIssueChecking found"}, status=403)
-
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
