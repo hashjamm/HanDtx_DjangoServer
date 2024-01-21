@@ -236,9 +236,6 @@ def get_issue_checking_survey(request):
         search_id = request.POST.get("user_id")
         search_date = request.POST.get("date")
 
-        print(request.POST.get("user_id"))
-        print(request.POST.get("date"))
-
         if not search_id or not search_date:
             return JsonResponse({"message": "search_id and search_date are required"}, status=401)
 
@@ -247,38 +244,36 @@ def get_issue_checking_survey(request):
         questionnaire_obj = QuestionnaireIssueChecking.objects.filter(user_info_id=user_info_obj,
                                                                       date=search_date).order_by('id').last()
 
-        print(questionnaire_obj)
+        if questionnaire_obj is not None:
 
-        response_data = {"checkbox1": questionnaire_obj.checkbox_1,
-                         "checkbox2": questionnaire_obj.checkbox_2,
-                         "checkbox3": questionnaire_obj.checkbox_3,
-                         "checkbox4": questionnaire_obj.checkbox_4,
-                         "checkbox5": questionnaire_obj.checkbox_5,
-                         "checkbox6": questionnaire_obj.checkbox_6,
-                         "checkbox7": questionnaire_obj.checkbox_7,
-                         "checkbox8": questionnaire_obj.checkbox_8,
-                         "checkbox9": questionnaire_obj.checkbox_9,
-                         "checkbox10": questionnaire_obj.checkbox_10,
-                         "checkbox11": questionnaire_obj.checkbox_11,
-                         "checkbox12": questionnaire_obj.checkbox_12,
-                         "checkbox13": questionnaire_obj.checkbox_13,
-                         "checkbox14": questionnaire_obj.checkbox_14,
-                         "checkbox15": questionnaire_obj.checkbox_15,
-                         "checkbox16": questionnaire_obj.checkbox_16,
-                         "checkbox17": questionnaire_obj.checkbox_17,
-                         "checkbox18": questionnaire_obj.checkbox_18,
-                         "checkbox19": questionnaire_obj.checkbox_19,
-                         "checkbox20": questionnaire_obj.checkbox_20,
-                         "checkbox21": questionnaire_obj.checkbox_21,
-                         "inputText": questionnaire_obj.input_text}
+            response_data = {"checkbox1": questionnaire_obj.checkbox_1,
+                             "checkbox2": questionnaire_obj.checkbox_2,
+                             "checkbox3": questionnaire_obj.checkbox_3,
+                             "checkbox4": questionnaire_obj.checkbox_4,
+                             "checkbox5": questionnaire_obj.checkbox_5,
+                             "checkbox6": questionnaire_obj.checkbox_6,
+                             "checkbox7": questionnaire_obj.checkbox_7,
+                             "checkbox8": questionnaire_obj.checkbox_8,
+                             "checkbox9": questionnaire_obj.checkbox_9,
+                             "checkbox10": questionnaire_obj.checkbox_10,
+                             "checkbox11": questionnaire_obj.checkbox_11,
+                             "checkbox12": questionnaire_obj.checkbox_12,
+                             "checkbox13": questionnaire_obj.checkbox_13,
+                             "checkbox14": questionnaire_obj.checkbox_14,
+                             "checkbox15": questionnaire_obj.checkbox_15,
+                             "checkbox16": questionnaire_obj.checkbox_16,
+                             "checkbox17": questionnaire_obj.checkbox_17,
+                             "checkbox18": questionnaire_obj.checkbox_18,
+                             "checkbox19": questionnaire_obj.checkbox_19,
+                             "checkbox20": questionnaire_obj.checkbox_20,
+                             "checkbox21": questionnaire_obj.checkbox_21,
+                             "inputText": questionnaire_obj.input_text}
 
-        print(response_data)
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse(response_data, status=200)
+        else:
 
-    except QuestionnaireIssueChecking.DoesNotExist:
-
-        return JsonResponse({"message": "QuestionnaireIssueChecking not found"}, status=402)
+            return JsonResponse({"message": "QuestionnaireIssueChecking not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
@@ -346,32 +341,30 @@ def get_self_diagnosis_survey(request):
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
         questionnaire_obj = QuestionnaireSelfDiagnosis.objects.filter(user_info_id=user_info_obj,
-                                                                      date=search_date).get()
+                                                                      date=search_date).order_by('id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9,
-                         "result10": questionnaire_obj.result_10}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7,
+                             "result8": questionnaire_obj.result_8,
+                             "result9": questionnaire_obj.result_9,
+                             "result10": questionnaire_obj.result_10}
 
-    except QuestionnaireSelfDiagnosis.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireSelfDiagnosis not found"}, status=402)
+        else:
 
-    except QuestionnaireSelfDiagnosis.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireSelfDiagnosis found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireSelfDiagnosis not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -429,29 +422,27 @@ def get_well_being_scale_survey(request):
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
         questionnaire_obj = QuestionnaireWellBeingScale.objects.filter(user_info_id=user_info_obj,
-                                                                       date=search_date).get()
+                                                                       date=search_date).order_by('id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7}
 
-    except QuestionnaireWellBeingScale.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireWellBeingScale not found"}, status=402)
+        else:
 
-    except QuestionnaireWellBeingScale.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireWellBeingScale found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireWellBeingScale not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -512,31 +503,30 @@ def get_phq9_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).get()
+        questionnaire_obj = QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7,
+                             "result8": questionnaire_obj.result_8,
+                             "result9": questionnaire_obj.result_9}
 
-    except QuestionnairePHQ9.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnairePHQ9 not found"}, status=402)
+        else:
 
-    except QuestionnairePHQ9.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnairePHQ9 found"}, status=403)
+            return JsonResponse({"message": "QuestionnairePHQ9 not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -593,29 +583,28 @@ def get_gad7_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).get()
+        questionnaire_obj = QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7}
 
-    except QuestionnaireGAD7.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireGAD7 not found"}, status=402)
+        else:
 
-    except QuestionnaireGAD7.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireGAD7 found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireGAD7 not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -678,32 +667,31 @@ def get_pss10_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).get()
+        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9,
-                         "result10": questionnaire_obj.result_10}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7,
+                             "result8": questionnaire_obj.result_8,
+                             "result9": questionnaire_obj.result_9,
+                             "result10": questionnaire_obj.result_10}
 
-    except QuestionnairePSS10.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnairePSS10 not found"}, status=402)
+        else:
 
-    except QuestionnairePSS10.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnairePSS10 found"}, status=403)
+            return JsonResponse({"message": "QuestionnairePSS10 not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -720,9 +708,6 @@ def update_stress_survey(request):
         update_result_5 = request.POST.get("result5")
         update_result_6 = request.POST.get("result6")
         update_result_7 = request.POST.get("result7")
-        update_result_8 = request.POST.get("result8")
-        update_result_9 = request.POST.get("result9")
-        update_result_10 = request.POST.get("result10")
 
         if not update_id or not update_date:
             return JsonResponse({"message": "update_id and update_date are required"}, status=401)
@@ -737,10 +722,7 @@ def update_stress_survey(request):
                                              result_4=update_result_4,
                                              result_5=update_result_5,
                                              result_6=update_result_6,
-                                             result_7=update_result_7,
-                                             result_8=update_result_8,
-                                             result_9=update_result_9,
-                                             result_10=update_result_10)
+                                             result_7=update_result_7)
 
         update_records.save()
 
@@ -766,32 +748,28 @@ def get_stress_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).get()
+        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9,
-                         "result10": questionnaire_obj.result_10}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7}
 
-    except QuestionnaireStress.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireStress not found"}, status=402)
+        else:
 
-    except QuestionnaireStress.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireStress found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireStress not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -869,36 +847,36 @@ def get_exercise_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj, date=search_date).get()
+        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9,
-                         "result10": questionnaire_obj.result_10,
-                         "result11": questionnaire_obj.result_11,
-                         "result12": questionnaire_obj.result_12,
-                         "exerciseType1": questionnaire_obj.result_13_exer_type[0].get('type'),
-                         "exerciseType2": questionnaire_obj.result_13_exer_type[1].get('type'),
-                         "exerciseType3": questionnaire_obj.result_13_exer_type[2].get('type'),
-                         "inputText": questionnaire_obj.result_13_input_text}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7,
+                             "result8": questionnaire_obj.result_8,
+                             "result9": questionnaire_obj.result_9,
+                             "result10": questionnaire_obj.result_10,
+                             "result11": questionnaire_obj.result_11,
+                             "result12": questionnaire_obj.result_12,
+                             "exerciseType1": questionnaire_obj.result_13_exer_type[0].get('type'),
+                             "exerciseType2": questionnaire_obj.result_13_exer_type[1].get('type'),
+                             "exerciseType3": questionnaire_obj.result_13_exer_type[2].get('type'),
+                             "inputText": questionnaire_obj.result_13_input_text}
 
-    except QuestionnaireExercise.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireExercise not found"}, status=402)
+        else:
 
-    except QuestionnaireExercise.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireExercise found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireExercise not found"}, status=402)
 
     except UserInfo.DoesNotExist:
+
         return JsonResponse({"message": "UserInfo not found"}, status=404)
 
 
@@ -966,30 +944,30 @@ def get_nutrition_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireNutrition.objects.filter(user_info_id=search_id, date=search_date).get()
+        questionnaire_obj = QuestionnaireNutrition.objects.filter(user_info_id=user_info_obj,
+                                                                  date=search_date).order_by(
+            'id').last()
 
-        response_data = {"result1": questionnaire_obj.result_1,
-                         "result2": questionnaire_obj.result_2,
-                         "result3": questionnaire_obj.result_3,
-                         "result4": questionnaire_obj.result_4,
-                         "result5": questionnaire_obj.result_5,
-                         "result6": questionnaire_obj.result_6,
-                         "result7": questionnaire_obj.result_7,
-                         "result8": questionnaire_obj.result_8,
-                         "result9": questionnaire_obj.result_9,
-                         "result10": questionnaire_obj.result_10,
-                         "snackType": questionnaire_obj.result_11_snack_type,
-                         "consumeNum": questionnaire_obj.result_11_consume_num}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"result1": questionnaire_obj.result_1,
+                             "result2": questionnaire_obj.result_2,
+                             "result3": questionnaire_obj.result_3,
+                             "result4": questionnaire_obj.result_4,
+                             "result5": questionnaire_obj.result_5,
+                             "result6": questionnaire_obj.result_6,
+                             "result7": questionnaire_obj.result_7,
+                             "result8": questionnaire_obj.result_8,
+                             "result9": questionnaire_obj.result_9,
+                             "result10": questionnaire_obj.result_10,
+                             "snackType": questionnaire_obj.result_11_snack_type,
+                             "consumeNum": questionnaire_obj.result_11_consume_num}
 
-    except QuestionnaireNutrition.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireNutrition not found"}, status=402)
+        else:
 
-    except QuestionnaireNutrition.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireNutrition found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireNutrition not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
@@ -1074,38 +1052,96 @@ def get_smoking_drinking_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireSmokingDrinking.objects.filter(user_info_id=search_id, date=search_date).get()
+        questionnaire_obj = QuestionnaireSmokingDrinking.objects.filter(user_info_id=user_info_obj,
+                                                                        date=search_date).order_by('id').last()
 
-        response_data = {"smoking_result1": questionnaire_obj.smoking_result_1,
-                         "smoking_result2": questionnaire_obj.smoking_result_2,
-                         "smoking_result3": questionnaire_obj.smoking_result_3,
-                         "smoking_result4": questionnaire_obj.smoking_result_4,
-                         "smoking_result5": questionnaire_obj.smoking_result_5,
-                         "smoking_result6": questionnaire_obj.smoking_result_6,
-                         "smoking_result7": questionnaire_obj.smoking_result_7,
-                         "smoking_result8": questionnaire_obj.smoking_result_8,
-                         "smoking_result9": questionnaire_obj.smoking_result_9,
-                         "drinking_result1": questionnaire_obj.drinking_result_1,
-                         "drinking_result2": questionnaire_obj.drinking_result_2,
-                         "drinking_result3": questionnaire_obj.drinking_result_3,
-                         "drinking_result4": questionnaire_obj.drinking_result_4,
-                         "drinking_result5": questionnaire_obj.drinking_result_5,
-                         "drinking_result6": questionnaire_obj.drinking_result_6,
-                         "drinking_result7": questionnaire_obj.drinking_result_7,
-                         "drinking_result8": questionnaire_obj.drinking_result_8,
-                         "drinking_result9": questionnaire_obj.drinking_result_9,
-                         "drinking_result10": questionnaire_obj.drinking_result_10}
+        if questionnaire_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"smoking_result1": questionnaire_obj.smoking_result_1,
+                             "smoking_result2": questionnaire_obj.smoking_result_2,
+                             "smoking_result3": questionnaire_obj.smoking_result_3,
+                             "smoking_result4": questionnaire_obj.smoking_result_4,
+                             "smoking_result5": questionnaire_obj.smoking_result_5,
+                             "smoking_result6": questionnaire_obj.smoking_result_6,
+                             "smoking_result7": questionnaire_obj.smoking_result_7,
+                             "smoking_result8": questionnaire_obj.smoking_result_8,
+                             "smoking_result9": questionnaire_obj.smoking_result_9,
+                             "drinking_result1": questionnaire_obj.drinking_result_1,
+                             "drinking_result2": questionnaire_obj.drinking_result_2,
+                             "drinking_result3": questionnaire_obj.drinking_result_3,
+                             "drinking_result4": questionnaire_obj.drinking_result_4,
+                             "drinking_result5": questionnaire_obj.drinking_result_5,
+                             "drinking_result6": questionnaire_obj.drinking_result_6,
+                             "drinking_result7": questionnaire_obj.drinking_result_7,
+                             "drinking_result8": questionnaire_obj.drinking_result_8,
+                             "drinking_result9": questionnaire_obj.drinking_result_9,
+                             "drinking_result10": questionnaire_obj.drinking_result_10}
 
-    except QuestionnaireSmokingDrinking.DoesNotExist:
+            return JsonResponse(response_data, status=200)
 
-        return JsonResponse({"message": "QuestionnaireSmokingDrinking not found"}, status=402)
+        else:
 
-    except QuestionnaireSmokingDrinking.MultipleObjectsReturned:
-
-        return JsonResponse({"message": "Multiple QuestionnaireSmokingDrinking found"}, status=403)
+            return JsonResponse({"message": "QuestionnaireSmokingDrinking not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
+
+
+@csrf_exempt
+@require_POST
+def get_all_survey_checked(request):
+    try:
+        search_id = request.POST.get("user_id")
+        search_date = request.POST.get("date")
+
+        if not search_id or not search_date:
+            return JsonResponse({"message": "search_id and search_date are required"}, status=401)
+
+        user_info_obj = UserInfo.objects.get(user_id=search_id)
+
+        is_checked_issue_checking = (
+                QuestionnaireIssueChecking.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_self_diagnosis = (
+                QuestionnaireSelfDiagnosis.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_well_being_scale = (QuestionnaireWellBeingScale.objects.filter(user_info_id=user_info_obj,
+                                                                                  date=search_date).count() > 0)
+
+        is_checked_phq9 = (QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_gad7 = (QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_pss10 = (QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_stress = (
+                QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_exercise = (
+                QuestionnaireExercise.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_nutrition = (
+                QuestionnaireNutrition.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+
+        is_checked_smoking_drinking = (QuestionnaireSmokingDrinking.objects.filter(user_info_id=user_info_obj,
+                                                                                   date=search_date).count() > 0)
+
+        response_data = {"issue_checking": is_checked_issue_checking,
+                         "self_diagnosis": is_checked_self_diagnosis,
+                         "well_being_scale": is_checked_well_being_scale,
+                         "phq9": is_checked_phq9,
+                         "gad7": is_checked_gad7,
+                         "pss10": is_checked_pss10,
+                         "exercise": is_checked_exercise,
+                         "smoking_drinking": is_checked_smoking_drinking,
+                         "stress": is_checked_stress,
+                         "nutrition": is_checked_nutrition}
+
+        print(response_data)
+
+        return JsonResponse(response_data, status=200)
+
+    except UserInfo.DoesNotExist:
+
+        return JsonResponse({"message": "UserInfo not found"}, status=402)
