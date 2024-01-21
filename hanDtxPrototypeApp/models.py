@@ -13,6 +13,9 @@ class UserInfo(models.Model):
     created = models.DateTimeField(default=timezone.now, verbose_name="생성 날짜")
     birth_date = models.DateField(verbose_name="생년월일")
 
+    class Meta:
+        unique_together = ['user_id']
+
 
 class LoginInfo(models.Model):
     id = models.BigAutoField(help_text="LoginInfo pk", primary_key=True)
@@ -33,9 +36,6 @@ class EmotionDiaryRecords(models.Model):
     score_type_3 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 식이 점수")
     input_text_type_3 = models.TextField(verbose_name="입력된 식이 텍스트", blank=True, null=True)
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireIssueChecking(models.Model):
@@ -66,9 +66,6 @@ class QuestionnaireIssueChecking(models.Model):
     checkbox_22 = models.BooleanField(blank=True, default=False, verbose_name="22번 체크 박스 선택 상태")
     input_text = models.TextField(blank=True, null=True, verbose_name="22번 체크 박스 입력 텍스트")
 
-    class Meta:
-        unique_together = ['user_info_id', 'date']
-
 
 class QuestionnaireSelfDiagnosis(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireSelfDiagnosis pk", primary_key=True)
@@ -85,9 +82,6 @@ class QuestionnaireSelfDiagnosis(models.Model):
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="10번 문항 점수")
 
-    class Meta:
-        unique_together = ['user_info_id', 'date']
-
 
 class QuestionnaireWellBeingScale(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireWellBeingScale pk", primary_key=True)
@@ -100,9 +94,6 @@ class QuestionnaireWellBeingScale(models.Model):
     result_5 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="5번 문항 점수")
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="7번 문항 점수")
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnairePHQ9(models.Model):
@@ -119,9 +110,6 @@ class QuestionnairePHQ9(models.Model):
     result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="8번 문항 점수")
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="9번 문항 점수")
 
-    class Meta:
-        unique_together = ['user_info_id', 'date']
-
 
 class QuestionnaireGAD7(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireGAD7 pk", primary_key=True)
@@ -134,9 +122,6 @@ class QuestionnaireGAD7(models.Model):
     result_5 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="5번 문항 점수")
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="7번 문항 점수")
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnairePSS10(models.Model):
@@ -153,9 +138,6 @@ class QuestionnairePSS10(models.Model):
     result_8 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="8번 문항 점수")
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="10번 문항 점수")
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
 
 class ExerciseType(models.Model):
@@ -182,9 +164,6 @@ class QuestionnaireExercise(models.Model):
     result_13_exer_type = models.ManyToManyField(ExerciseType, through="QuestionnaireExerciseExerciseType",
                                                  related_name="exercise_type")
     result_13_input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열", null=True)
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -268,9 +247,6 @@ class QuestionnaireSmokingDrinking(models.Model):
                                              validators=[MinValueValidator(0), MaxValueValidator(2)],
                                              verbose_name="10번 음주 문항 점수")
 
-    class Meta:
-        unique_together = ['user_info_id', 'date']
-
 
 class QuestionnaireStress(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireStress pk", primary_key=True)
@@ -283,9 +259,6 @@ class QuestionnaireStress(models.Model):
     result_5 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="5번 문항 점수")
     result_6 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="6번 문항 점수")
     result_7 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="7번 문항 점수")
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
 
 
 class QuestionnaireNutrition(models.Model):
@@ -303,7 +276,4 @@ class QuestionnaireNutrition(models.Model):
     result_9 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="9번 문항 점수")
     result_10 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="10번 문항 점수")
     result_11_snack_type = models.TextField(verbose_name="11번 문항 입력 간식 종류")
-    result_11_consume_num = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="11번 문항 입력 간식 섭취 횟수")
-
-    class Meta:
-        unique_together = ['user_info_id', 'date']
+    result_11_consume_num = models.FloatField(validators=[MinValueValidator(0)], verbose_name="11번 문항 입력 간식 섭취 횟수")
