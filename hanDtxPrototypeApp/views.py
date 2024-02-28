@@ -93,28 +93,28 @@ def get_emotion_diary_records(request):
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
         emotion_diary_records_obj = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj,
-                                                                       date=search_date).get()
+                                                                       date=search_date).order_by('id').last()
 
-        response_data = {"score1": emotion_diary_records_obj.score_type_1,
-                         "inputText1": emotion_diary_records_obj.input_text_type_1,
-                         "score2": emotion_diary_records_obj.score_type_2,
-                         "inputText2": emotion_diary_records_obj.input_text_type_2,
-                         "score3": emotion_diary_records_obj.score_type_3,
-                         "inputText3": emotion_diary_records_obj.input_text_type_3}
+        if emotion_diary_records_obj is not None:
 
-        return JsonResponse(response_data, status=200)
+            response_data = {"score1": emotion_diary_records_obj.score_type_1,
+                             "inputText1": emotion_diary_records_obj.input_text_type_1,
+                             "score2": emotion_diary_records_obj.score_type_2,
+                             "inputText2": emotion_diary_records_obj.input_text_type_2,
+                             "score3": emotion_diary_records_obj.score_type_3,
+                             "inputText3": emotion_diary_records_obj.input_text_type_3}
 
-    except EmotionDiaryRecords.DoesNotExist:
+            print(response_data)
 
-        return JsonResponse({"message": "EmotionDiaryRecords not found"}, status=402)
+            return JsonResponse(response_data, status=200)
 
-    except EmotionDiaryRecords.MultipleObjectsReturned:
+        else:
 
-        return JsonResponse({"message": "Multiple EmotionDiaryRecords found"}, status=403)
+            return JsonResponse({"message": "EmotionDiaryRecords not found"}, status=402)
 
     except UserInfo.DoesNotExist:
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+        return JsonResponse({"message": "UserInfo not found"}, status=403)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
