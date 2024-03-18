@@ -19,13 +19,15 @@ class UserInfo(models.Model):
 
 class LoginInfo(models.Model):
     id = models.BigAutoField(help_text="LoginInfo pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="login_info_set")
     login_time = models.DateTimeField(auto_now_add=True, verbose_name="로그인 시간")
 
 
 class EmotionDiaryRecords(models.Model):
     id = models.BigAutoField(help_text="EmotionDiaryRecords pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="emotion_diary_records_set")
     date = models.DateField(verbose_name="입력 날짜")
     score_type_1 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 기분 점수")
@@ -40,7 +42,8 @@ class EmotionDiaryRecords(models.Model):
 
 class QuestionnaireIssueChecking(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireIssueChecking pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_issue_checking_set")
     date = models.DateField(verbose_name="입력 날짜")
     checkbox_1 = models.BooleanField(blank=True, default=False, verbose_name="1번 체크 박스 선택 상태")
     checkbox_2 = models.BooleanField(blank=True, default=False, verbose_name="2번 체크 박스 선택 상태")
@@ -69,7 +72,8 @@ class QuestionnaireIssueChecking(models.Model):
 
 class QuestionnaireSelfDiagnosis(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireSelfDiagnosis pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_self_diagnosis_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -85,7 +89,8 @@ class QuestionnaireSelfDiagnosis(models.Model):
 
 class QuestionnaireWellBeingScale(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireWellBeingScale pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_well_being_scale_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -98,7 +103,8 @@ class QuestionnaireWellBeingScale(models.Model):
 
 class QuestionnairePHQ9(models.Model):
     id = models.BigAutoField(help_text="QuestionnairePHQ9 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_phq9_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -113,7 +119,8 @@ class QuestionnairePHQ9(models.Model):
 
 class QuestionnaireGAD7(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireGAD7 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_gad7_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -126,7 +133,8 @@ class QuestionnaireGAD7(models.Model):
 
 class QuestionnairePSS10(models.Model):
     id = models.BigAutoField(help_text="QuestionnairePSS10 pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_pss10_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(4)], verbose_name="2번 문항 점수")
@@ -147,7 +155,8 @@ class ExerciseType(models.Model):
 
 class QuestionnaireExercise(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireExercise pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_exercise_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(7)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(7)], verbose_name="2번 문항 점수")
@@ -162,7 +171,7 @@ class QuestionnaireExercise(models.Model):
     result_11 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="11번 문항 점수")
     result_12 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="12번 문항 점수")
     result_13_exer_type = models.ManyToManyField(ExerciseType, through="QuestionnaireExerciseExerciseType",
-                                                 related_name="exercise_type")
+                                                 related_name="questionnaire_exercise_set")
     result_13_input_text = models.TextField(verbose_name="기타 운동 종목 입력 문자열", null=True)
 
     def save(self, *args, **kwargs):
@@ -182,13 +191,15 @@ class QuestionnaireExercise(models.Model):
 
 class QuestionnaireExerciseExerciseType(models.Model):
     questionnaire_exercise = models.ForeignKey(QuestionnaireExercise, on_delete=models.CASCADE,
-                                               related_name="questionnaire_exercise_relations")
-    exercise_type = models.ForeignKey(ExerciseType, on_delete=models.DO_NOTHING, related_name="exercise_type_relations")
+                                               related_name="questionnaire_exercise_exercise_type_set")
+    exercise_type = models.ForeignKey(ExerciseType, on_delete=models.DO_NOTHING,
+                                      related_name="questionnaire_exercise_exercise_type_set")
 
 
 class QuestionnaireSmokingDrinking(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireSmokingDrinking pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_smoking_drinking_set")
     date = models.DateField(verbose_name="입력 날짜")
     smoking_result_1 = models.IntegerField(blank=True, validators=[MinValueValidator(0), MaxValueValidator(1)],
                                            verbose_name="1번 흡연 문항 점수")
@@ -250,7 +261,8 @@ class QuestionnaireSmokingDrinking(models.Model):
 
 class QuestionnaireStress(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireStress pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_stress_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)], verbose_name="2번 문항 점수")
@@ -263,7 +275,8 @@ class QuestionnaireStress(models.Model):
 
 class QuestionnaireNutrition(models.Model):
     id = models.BigAutoField(help_text="QuestionnaireNutrition pk", primary_key=True)
-    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk")
+    user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
+                                     related_name="questionnaire_nutrition_set")
     date = models.DateField(verbose_name="입력 날짜")
     result_1 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="1번 문항 점수")
     result_2 = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)], verbose_name="2번 문항 점수")

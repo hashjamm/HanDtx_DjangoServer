@@ -8,6 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_POST
 import json
 
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import UserInfo, ExerciseType
 from .models import LoginInfo
 from .models import EmotionDiaryRecords
@@ -78,81 +82,78 @@ def login(request):
 
         return JsonResponse({}, status=400)
 
+class EmotionDiaryRecordsAPIView(APIView):
+    renderer_classes = [JSONRenderer]
+    permission_classes = []
 
-# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 감정 다이어리 정보 전체를 반환
-@csrf_exempt
-@require_POST
-def get_emotion_diary_records(request):
-    try:
-        search_id = request.POST.get('user_id')
-        search_date = request.POST.get('date')
+    @csrf_exempt
+    def get_record(request):
+        try:
+            user_id = request.GET.get('user_id')
+            date = request.GET.get('date')
 
-        if not search_id or not search_date:
-            return JsonResponse({"message": "search_id and search_date are required"}, status=401)
+            if not user_id or not date:
+                return Response({"message": "user_id and date are required"}, status=401)
 
-        user_info_obj = UserInfo.objects.get(user_id=search_id)
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by('id').last()
 
-        emotion_diary_records_obj = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj,
-                                                                       date=search_date).order_by('id').last()
+            serialized_data = EmotionDiaryRecordsSerializer(get_record).data
 
-        if emotion_diary_records_obj is not None:
+            return Response(serialized_data, status=200)
 
-            response_data = {"score1": emotion_diary_records_obj.score_type_1,
-                             "inputText1": emotion_diary_records_obj.input_text_type_1,
-                             "score2": emotion_diary_records_obj.score_type_2,
-                             "inputText2": emotion_diary_records_obj.input_text_type_2,
-                             "score3": emotion_diary_records_obj.score_type_3,
-                             "inputText3": emotion_diary_records_obj.input_text_type_3}
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=402)
 
-            print(response_data)
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "EmotionDiaryRecords not found"}, status=403)
 
-            return JsonResponse(response_data, status=200)
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
-        else:
+    @staticmethod
+    def _update_field(update_record, field_name, value):
+        setattr(update_record, field_name, value)
+        update_record.save()
 
-            return JsonResponse({"message": "EmotionDiaryRecords not found"}, status=402)
+    @csrf_exempt
+    def update_record(self, request):
+        try:
+            user_id = request.GET.get('user_id')
+            date = request.GET.get('date')
+            score = request.GET.get('score')
+            input_text = request.GET.get('input_text')
+            type = request.GET.get('type')
 
-    except UserInfo.DoesNotExist:
+            if not user_id or not date or not type:
+                return Response({"message": "user_id, date and type are required"}, status=401)
 
-        return JsonResponse({"message": "UserInfo not found"}, status=403)
+            if type not in ['1', '2', '3']:
+                return Response({"message": "Invalid type provided"}, status=402)
 
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            update_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by(
+                'id').last()
 
-# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
-@csrf_exempt
-@require_POST
-def update_emotion_diary_records(request):
-    try:
-        update_id = request.POST.get('user_id')
-        update_date = request.POST.get("date")
-        update_score_type_1 = request.POST.get("score1")
-        update_input_text_type_1 = request.POST.get("inputText1")
-        update_score_type_2 = request.POST.get("score2")
-        update_input_text_type_2 = request.POST.get("inputText2")
-        update_score_type_3 = request.POST.get("score3")
-        update_input_text_type_3 = request.POST.get("inputText3")
+            if not score and not input_text:
+                return Response({"message": "score or input_text are required"}, status=403)
+            elif score is None and input_text:
+                field_name = f"score_input_text_{type}"
+                self._update_field(update_record, field_name, input_text)
+            elif input_text is None and score:
+                field_name = f"score_type_{type}"
+                self._update_field(update_record, field_name, score)
+            else:
+                return Response({"message": "Both score and input_text is sent simultaneously"}, status=404)
 
-        if not update_id or not update_date:
-            return JsonResponse({"message": "update_id and update_date are required"}, status=401)
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=405)
 
-        user_info_obj = UserInfo.objects.get(user_id=update_id)
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "No record found for the given user_id and date."}, status=406)
 
-        update_records = EmotionDiaryRecords(user_info_id=user_info_obj,
-                                             date=update_date,
-                                             score_type_1=update_score_type_1,
-                                             input_text_type_1=update_input_text_type_1,
-                                             score_type_2=update_score_type_2,
-                                             input_text_type_2=update_input_text_type_2,
-                                             score_type_3=update_score_type_3,
-                                             input_text_type_3=update_input_text_type_3)
-
-        update_records.save()
-
-        response_data = {"message": "updated emotion diary records successfully"}
-        return JsonResponse(response_data, status=200)
-
-    except UserInfo.DoesNotExist:
-
-        return JsonResponse({"message": "UserInfo not found"}, status=402)
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
