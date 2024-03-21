@@ -29,15 +29,15 @@ class EmotionDiaryRecords(models.Model):
     user_info_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="UserInfo pk",
                                      related_name="emotion_diary_records_set")
     date = models.DateField(verbose_name="입력 날짜")
-    score_type_1 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
+    score_type_1 = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 기분 점수")
-    input_text_type_1 = models.TextField(verbose_name="입력된 기분 텍스트", blank=True, null=True)
-    score_type_2 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
+    input_text_type_1 = models.TextField(verbose_name="입력된 기분 텍스트", null=True)
+    score_type_2 = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 불안 점수")
     input_text_type_2 = models.TextField(verbose_name="입력된 불안 텍스트", blank=True, null=True)
-    score_type_3 = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
+    score_type_3 = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(9)],
                                        verbose_name="입력된 식이 점수")
-    input_text_type_3 = models.TextField(verbose_name="입력된 식이 텍스트", blank=True, null=True)
+    input_text_type_3 = models.TextField(verbose_name="입력된 식이 텍스트", null=True)
 
 
 class QuestionnaireIssueChecking(models.Model):

@@ -2,10 +2,12 @@ import requests
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 import json
 
 from rest_framework.renderers import JSONRenderer
@@ -26,7 +28,7 @@ from .models import QuestionnairePSS10
 from .models import QuestionnaireSelfDiagnosis
 from .models import QuestionnaireWellBeingScale
 
-from .serializers import UserInfoSerializer
+from .serializers import UserInfoSerializer, EmotionDiaryRecordsSerializerForGet
 from .serializers import LoginInfoSerializer
 from .serializers import EmotionDiaryRecordsSerializer
 from .serializers import QuestionnaireSmokingDrinkingSerializer
@@ -82,12 +84,16 @@ def login(request):
 
         return JsonResponse({}, status=400)
 
+
 class EmotionDiaryRecordsAPIView(APIView):
     renderer_classes = [JSONRenderer]
     permission_classes = []
 
-    @csrf_exempt
-    def get_record(request):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
         try:
             user_id = request.GET.get('user_id')
             date = request.GET.get('date')
@@ -98,32 +104,42 @@ class EmotionDiaryRecordsAPIView(APIView):
             user_info_obj = UserInfo.objects.get(user_id=user_id)
             get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by('id').last()
 
-            serialized_data = EmotionDiaryRecordsSerializer(get_record).data
+            serialized_data = EmotionDiaryRecordsSerializerForGet(get_record).data
 
+            print(serialized_data)
             return Response(serialized_data, status=200)
 
         except UserInfo.DoesNotExist:
             return Response({"message": "UserInfo not found"}, status=402)
 
         except EmotionDiaryRecords.DoesNotExist:
-            return Response({"message": "EmotionDiaryRecords not found"}, status=403)
+            return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
         except Exception as e:
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
     @staticmethod
-    def _update_field(update_record, field_name, value):
-        setattr(update_record, field_name, value)
-        update_record.save()
+    def _update_field(user_id, date, update_record, field_name, value):
 
-    @csrf_exempt
-    def update_record(self, request):
+        if update_record is None:
+
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            new_data = EmotionDiaryRecords(user_info_id=user_info_obj, date=date)
+
+            setattr(new_data, field_name, value)
+            new_data.save()
+
+        else:
+            setattr(update_record, field_name, value)
+            update_record.save()
+
+    def post(self, request):
         try:
-            user_id = request.GET.get('user_id')
-            date = request.GET.get('date')
-            score = request.GET.get('score')
-            input_text = request.GET.get('input_text')
-            type = request.GET.get('type')
+            user_id = request.POST.get('user_id')
+            date = request.POST.get('date')
+            score = request.POST.get('score')
+            input_text = request.POST.get('input_text')
+            type = request.POST.get('type')
 
             if not user_id or not date or not type:
                 return Response({"message": "user_id, date and type are required"}, status=401)
@@ -136,21 +152,23 @@ class EmotionDiaryRecordsAPIView(APIView):
                 'id').last()
 
             if not score and not input_text:
-                return Response({"message": "score or input_text are required"}, status=403)
+                return Response({"message": "score or input_text are required"}, status=401)
             elif score is None and input_text:
-                field_name = f"score_input_text_{type}"
-                self._update_field(update_record, field_name, input_text)
+                field_name = f"input_text_type_{type}"
+                self._update_field(user_id, date, update_record, field_name, input_text)
+                return Response({"message": "input_text are successfully updated"}, status=200)
             elif input_text is None and score:
                 field_name = f"score_type_{type}"
-                self._update_field(update_record, field_name, score)
+                self._update_field(user_id, date, update_record, field_name, score)
+                return Response({"message": "score are successfully updated"}, status=200)
             else:
-                return Response({"message": "Both score and input_text is sent simultaneously"}, status=404)
+                return Response({"message": "Both score and input_text is sent simultaneously"}, status=403)
 
         except UserInfo.DoesNotExist:
-            return Response({"message": "UserInfo not found"}, status=405)
+            return Response({"message": "UserInfo not found"}, status=404)
 
         except EmotionDiaryRecords.DoesNotExist:
-            return Response({"message": "No record found for the given user_id and date."}, status=406)
+            return Response({"message": "No record found for the given user_id and date."}, status=404)
 
         except Exception as e:
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
