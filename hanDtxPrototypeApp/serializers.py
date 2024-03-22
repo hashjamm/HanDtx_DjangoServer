@@ -47,14 +47,6 @@ class EmotionDiaryRecordsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class EmotionDiaryRecordsSerializerForGet(serializers.ModelSerializer):
-    class Meta:
-        model = EmotionDiaryRecords
-        fields = ['score_type_1', 'input_text_type_1',
-                  'score_type_2', 'input_text_type_2',
-                  'score_type_3', 'input_text_type_3']
-
-
 class QuestionnaireIssueCheckingSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireIssueChecking

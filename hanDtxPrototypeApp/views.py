@@ -28,7 +28,7 @@ from .models import QuestionnairePSS10
 from .models import QuestionnaireSelfDiagnosis
 from .models import QuestionnaireWellBeingScale
 
-from .serializers import UserInfoSerializer, EmotionDiaryRecordsSerializerForGet
+from .serializers import UserInfoSerializer
 from .serializers import LoginInfoSerializer
 from .serializers import EmotionDiaryRecordsSerializer
 from .serializers import QuestionnaireSmokingDrinkingSerializer
@@ -104,18 +104,29 @@ class EmotionDiaryRecordsAPIView(APIView):
             user_info_obj = UserInfo.objects.get(user_id=user_id)
             get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by('id').last()
 
-            serialized_data = EmotionDiaryRecordsSerializerForGet(get_record).data
+            if get_record is None:
+                print("111")
+                return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
-            print(serialized_data)
-            return Response(serialized_data, status=200)
+            response_data = {'score1': get_record.score_type_1,
+                             'inputText1': get_record.input_text_type_1,
+                             'score2': get_record.score_type_2,
+                             'inputText2': get_record.input_text_type_2,
+                             'score3': get_record.score_type_3,
+                             'inputText3': get_record.input_text_type_3}
+
+            return Response(response_data, status=200)
 
         except UserInfo.DoesNotExist:
+            print("222")
             return Response({"message": "UserInfo not found"}, status=402)
 
         except EmotionDiaryRecords.DoesNotExist:
+            print("333")
             return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
         except Exception as e:
+            print("444")
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
     @staticmethod
