@@ -94,6 +94,7 @@ class EmotionDiaryRecordsAPIView(APIView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
+
         try:
             user_id = request.GET.get('user_id')
             date = request.GET.get('date')
@@ -105,7 +106,6 @@ class EmotionDiaryRecordsAPIView(APIView):
             get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by('id').last()
 
             if get_record is None:
-                print("111")
                 return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
             response_data = {'score1': get_record.score_type_1,
@@ -118,20 +118,52 @@ class EmotionDiaryRecordsAPIView(APIView):
             return Response(response_data, status=200)
 
         except UserInfo.DoesNotExist:
-            print("222")
             return Response({"message": "UserInfo not found"}, status=402)
 
         except EmotionDiaryRecords.DoesNotExist:
-            print("333")
             return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
         except Exception as e:
-            print("444")
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
+
+    def another_get(self, request):
+
+        try:
+            user_id = request.GET.get('user_id')
+            month = request.GET.get('month')
+
+            if not user_id or not month:
+                return Response({"message": "user_id and month are required"}, status=401)
+
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            get_records = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date__month=month)
+
+            if get_records is None:
+                return Response({"message": "EmotionDiaryRecords not found"}, status=402)
+
+            response_data = json.dumps([
+                {'score1': get_record.score_type_1,
+                 'inputText1': get_record.input_text_type_1,
+                 'score2': get_record.score_type_2,
+                 'inputText2': get_record.input_text_type_2,
+                 'score3': get_record.score_type_3,
+                 'inputText3': get_record.input_text_type_3} for get_record in get_records
+            ])
+
+            return Response(response_data, status=200)
+
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=402)
+
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "EmotionDiaryRecords not found"}, status=402)
+
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
+
 
     @staticmethod
     def _update_field(user_id, date, update_record, field_name, value):
-
         if update_record is None:
 
             user_info_obj = UserInfo.objects.get(user_id=user_id)
@@ -143,6 +175,7 @@ class EmotionDiaryRecordsAPIView(APIView):
         else:
             setattr(update_record, field_name, value)
             update_record.save()
+
 
     def post(self, request):
         try:
@@ -697,7 +730,8 @@ def get_pss10_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj,
+                                                              date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -778,7 +812,8 @@ def get_stress_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj,
+                                                               date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -877,7 +912,8 @@ def get_exercise_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj,
+                                                                 date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -1139,11 +1175,14 @@ def get_all_survey_checked(request):
         is_checked_well_being_scale = (QuestionnaireWellBeingScale.objects.filter(user_info_id=user_info_obj,
                                                                                   date=search_date).count() > 0)
 
-        is_checked_phq9 = (QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_phq9 = (
+                QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
-        is_checked_gad7 = (QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_gad7 = (
+                QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
-        is_checked_pss10 = (QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_pss10 = (
+                QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
         is_checked_stress = (
                 QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
