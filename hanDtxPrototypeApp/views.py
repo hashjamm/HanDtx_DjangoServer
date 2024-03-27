@@ -1,3 +1,5 @@
+import calendar
+
 import requests
 from django.shortcuts import render
 
@@ -130,25 +132,49 @@ class EmotionDiaryRecordsAPIView(APIView):
 
         try:
             user_id = request.GET.get('user_id')
-            month = request.GET.get('month')
+            date = request.GET.get('date')
 
-            if not user_id or not month:
-                return Response({"message": "user_id and month are required"}, status=401)
+            if not user_id or not date:
+                return Response({"message": "user_id and date are required"}, status=401)
+
+            year = int(date[:5])
+            month = int(date[5:7])
+
+            start_date = datetime.date(year=year, month=month, day=1)
+            end_date = datetime.date(year=year, month=month, day=calendar.monthrange(year, month)[1])
+            date_range = [start_date + datetime.timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
             user_info_obj = UserInfo.objects.get(user_id=user_id)
-            get_records = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date__month=month)
 
-            if get_records is None:
-                return Response({"message": "EmotionDiaryRecords not found"}, status=402)
+            response_data = []
 
-            response_data = json.dumps([
-                {'score1': get_record.score_type_1,
-                 'inputText1': get_record.input_text_type_1,
-                 'score2': get_record.score_type_2,
-                 'inputText2': get_record.input_text_type_2,
-                 'score3': get_record.score_type_3,
-                 'inputText3': get_record.input_text_type_3} for get_record in get_records
-            ])
+            for date in date_range:
+
+                get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date)
+
+                if get_record is None:
+
+                    reponse_element = {
+                        'score1': None,
+                        'inputText1': None,
+                        'score2': None,
+                        'inputText2': None,
+                        'score3': None,
+                        'inputText3': None
+                    }
+
+                else:
+
+                    reponse_element = {
+                        'score1': get_record.score_type_1,
+                        'inputText1': get_record.input_text_type_1,
+                        'score2': get_record.score_type_2,
+                        'inputText2': get_record.input_text_type_2,
+                        'score3': get_record.score_type_3,
+                        'inputText3': get_record.input_text_type_3
+                    }
+
+                reponse_data.append(reponse_element)
 
             return Response(response_data, status=200)
 
@@ -160,7 +186,6 @@ class EmotionDiaryRecordsAPIView(APIView):
 
         except Exception as e:
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
-
 
     @staticmethod
     def _update_field(user_id, date, update_record, field_name, value):
@@ -175,7 +200,6 @@ class EmotionDiaryRecordsAPIView(APIView):
         else:
             setattr(update_record, field_name, value)
             update_record.save()
-
 
     def post(self, request):
         try:
