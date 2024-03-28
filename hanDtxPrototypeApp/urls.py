@@ -26,8 +26,9 @@ app_name = 'hanDtxPrototypeApp'
 urlpatterns = [
     path("home/", test_views.home, name="home"),
     path("app_login/", views.login),
-    path("app_get_emotion_diary_records/", views.EmotionDiaryRecordsAPIView.as_view(), name='get'),
-    path("app_get_emotion_diary_records_monthly", views.EmotionDiaryRecordsAPIView.as_view(), name='another_get'),
+    path("app_get_emotion_diary_records/", views.EmotionDiaryRecordsAPIView.as_view(), name='get_for_emotion_diary'),
+    path("app_get_emotion_diary_records_monthly/", views.EmotionDiaryRecordsAPIView.as_view(),
+         name='get_for_daily_emotion_diary'),
     path("app_update_emotion_diary_records/", views.EmotionDiaryRecordsAPIView.as_view(), name='post'),
     path("app_get_issue_checking_survey/", views.get_issue_checking_survey),
     path("app_update_issue_checking_survey/", views.update_issue_checking_survey),

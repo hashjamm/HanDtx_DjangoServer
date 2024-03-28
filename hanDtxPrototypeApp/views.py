@@ -1,4 +1,5 @@
 import calendar
+import datetime
 
 import requests
 from django.shortcuts import render
@@ -97,6 +98,17 @@ class EmotionDiaryRecordsAPIView(APIView):
 
     def get(self, request):
 
+        function_code = request.GET.get('code')
+
+        if function_code == '1':
+            return self.get_for_emotion_diary(request)
+        elif function_code == '2':
+            return self.get_for_daily_emotion_diary(request)
+        else:
+            return Response({'message': 'Invalid function code specified'}, status=400)
+
+    def get_for_emotion_diary(self, request):
+
         try:
             user_id = request.GET.get('user_id')
             date = request.GET.get('date')
@@ -128,33 +140,35 @@ class EmotionDiaryRecordsAPIView(APIView):
         except Exception as e:
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
-    def another_get(self, request):
+    def get_for_daily_emotion_diary(self, request):
 
         try:
             user_id = request.GET.get('user_id')
             date = request.GET.get('date')
 
+            date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+
+            year = date_obj.year
+            month = date_obj.month
+
             if not user_id or not date:
                 return Response({"message": "user_id and date are required"}, status=401)
 
-            year = int(date[:5])
-            month = int(date[5:7])
-
-            start_date = datetime.date(year=year, month=month, day=1)
-            end_date = datetime.date(year=year, month=month, day=calendar.monthrange(year, month)[1])
+            start_date = datetime.date(year, month, 1)
+            end_date = datetime.date(year, month, calendar.monthrange(year, month)[1])
             date_range = [start_date + datetime.timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
             user_info_obj = UserInfo.objects.get(user_id=user_id)
 
             response_data = []
 
-            for date in date_range:
+            for day in date_range:
 
-                get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date)
+                get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=day)
 
-                if get_record is None:
+                if not get_record:
 
-                    reponse_element = {
+                    response_element = {
                         'score1': None,
                         'inputText1': None,
                         'score2': None,
@@ -164,17 +178,19 @@ class EmotionDiaryRecordsAPIView(APIView):
                     }
 
                 else:
-
-                    reponse_element = {
-                        'score1': get_record.score_type_1,
-                        'inputText1': get_record.input_text_type_1,
-                        'score2': get_record.score_type_2,
-                        'inputText2': get_record.input_text_type_2,
-                        'score3': get_record.score_type_3,
-                        'inputText3': get_record.input_text_type_3
+                    record = get_record.first()
+                    response_element = {
+                        'score1': record.score_type_1,
+                        'inputText1': record.input_text_type_1,
+                        'score2': record.score_type_2,
+                        'inputText2': record.input_text_type_2,
+                        'score3': record.score_type_3,
+                        'inputText3': record.input_text_type_3
                     }
 
-                reponse_data.append(reponse_element)
+                response_data.append(response_element)
+
+            print(response_data)
 
             return Response(response_data, status=200)
 
@@ -209,18 +225,27 @@ class EmotionDiaryRecordsAPIView(APIView):
             input_text = request.POST.get('input_text')
             type = request.POST.get('type')
 
+            print("------")
+
             if not user_id or not date or not type:
                 return Response({"message": "user_id, date and type are required"}, status=401)
 
+            print("------")
+
             if type not in ['1', '2', '3']:
                 return Response({"message": "Invalid type provided"}, status=402)
+
+            print("------")
 
             user_info_obj = UserInfo.objects.get(user_id=user_id)
             update_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by(
                 'id').last()
 
+            print(score)
+            print(input_text)
+
             if not score and not input_text:
-                return Response({"message": "score or input_text are required"}, status=401)
+                return Response({"message": "score or input_text are required"}, status=201)
             elif score is None and input_text:
                 field_name = f"input_text_type_{type}"
                 self._update_field(user_id, date, update_record, field_name, input_text)
@@ -230,13 +255,13 @@ class EmotionDiaryRecordsAPIView(APIView):
                 self._update_field(user_id, date, update_record, field_name, score)
                 return Response({"message": "score are successfully updated"}, status=200)
             else:
-                return Response({"message": "Both score and input_text is sent simultaneously"}, status=403)
+                return Response({"message": "Both score and input_text is sent simultaneously"}, status=201)
 
         except UserInfo.DoesNotExist:
-            return Response({"message": "UserInfo not found"}, status=404)
+            return Response({"message": "UserInfo not found"}, status=403)
 
         except EmotionDiaryRecords.DoesNotExist:
-            return Response({"message": "No record found for the given user_id and date."}, status=404)
+            return Response({"message": "No record found for the given user_id and date."}, status=403)
 
         except Exception as e:
             return Response({"message": "An error occurred", "error": str(e)}, status=500)
