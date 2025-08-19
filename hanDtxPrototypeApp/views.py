@@ -1,12 +1,21 @@
+import calendar
+import datetime
+
 import requests
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 import json
+
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import UserInfo, ExerciseType
 from .models import LoginInfo
@@ -79,80 +88,183 @@ def login(request):
         return JsonResponse({}, status=400)
 
 
-# POST 요청으로 유저의 아이디와 날짜를 전달받으면, 해당 아이디와 날짜에 해당하는 감정 다이어리 정보 전체를 반환
-@csrf_exempt
-@require_POST
-def get_emotion_diary_records(request):
-    try:
-        search_id = request.POST.get('user_id')
-        search_date = request.POST.get('date')
+class EmotionDiaryRecordsAPIView(APIView):
+    renderer_classes = [JSONRenderer]
+    permission_classes = []
 
-        if not search_id or not search_date:
-            return JsonResponse({"message": "search_id and search_date are required"}, status=401)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-        user_info_obj = UserInfo.objects.get(user_id=search_id)
+    def get(self, request):
 
-        emotion_diary_records_obj = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj,
-                                                                       date=search_date).get()
+        function_code = request.GET.get('code')
 
-        response_data = {"score1": emotion_diary_records_obj.score_type_1,
-                         "inputText1": emotion_diary_records_obj.input_text_type_1,
-                         "score2": emotion_diary_records_obj.score_type_2,
-                         "inputText2": emotion_diary_records_obj.input_text_type_2,
-                         "score3": emotion_diary_records_obj.score_type_3,
-                         "inputText3": emotion_diary_records_obj.input_text_type_3}
+        if function_code == '1':
+            return self.get_for_emotion_diary(request)
+        elif function_code == '2':
+            return self.get_for_daily_emotion_diary(request)
+        else:
+            return Response({'message': 'Invalid function code specified'}, status=400)
 
-        return JsonResponse(response_data, status=200)
+    def get_for_emotion_diary(self, request):
 
-    except EmotionDiaryRecords.DoesNotExist:
+        try:
+            user_id = request.GET.get('user_id')
+            date = request.GET.get('date')
 
-        return JsonResponse({"message": "EmotionDiaryRecords not found"}, status=402)
+            if not user_id or not date:
+                return Response({"message": "user_id and date are required"}, status=401)
 
-    except EmotionDiaryRecords.MultipleObjectsReturned:
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by('id').last()
 
-        return JsonResponse({"message": "Multiple EmotionDiaryRecords found"}, status=403)
+            if get_record is None:
+                return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
-    except UserInfo.DoesNotExist:
+            response_data = {'score1': get_record.score_type_1,
+                             'inputText1': get_record.input_text_type_1,
+                             'score2': get_record.score_type_2,
+                             'inputText2': get_record.input_text_type_2,
+                             'score3': get_record.score_type_3,
+                             'inputText3': get_record.input_text_type_3}
 
-        return JsonResponse({"message": "UserInfo not found"}, status=404)
+            return Response(response_data, status=200)
 
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=402)
 
-# POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
-@csrf_exempt
-@require_POST
-def update_emotion_diary_records(request):
-    try:
-        update_id = request.POST.get('user_id')
-        update_date = request.POST.get("date")
-        update_score_type_1 = request.POST.get("score1")
-        update_input_text_type_1 = request.POST.get("inputText1")
-        update_score_type_2 = request.POST.get("score2")
-        update_input_text_type_2 = request.POST.get("inputText2")
-        update_score_type_3 = request.POST.get("score3")
-        update_input_text_type_3 = request.POST.get("inputText3")
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "EmotionDiaryRecords not found"}, status=402)
 
-        if not update_id or not update_date:
-            return JsonResponse({"message": "update_id and update_date are required"}, status=401)
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
-        user_info_obj = UserInfo.objects.get(user_id=update_id)
+    def get_for_daily_emotion_diary(self, request):
 
-        update_records = EmotionDiaryRecords(user_info_id=user_info_obj,
-                                             date=update_date,
-                                             score_type_1=update_score_type_1,
-                                             input_text_type_1=update_input_text_type_1,
-                                             score_type_2=update_score_type_2,
-                                             input_text_type_2=update_input_text_type_2,
-                                             score_type_3=update_score_type_3,
-                                             input_text_type_3=update_input_text_type_3)
+        try:
+            user_id = request.GET.get('user_id')
+            date = request.GET.get('date')
 
-        update_records.save()
+            date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
 
-        response_data = {"message": "updated emotion diary records successfully"}
-        return JsonResponse(response_data, status=200)
+            year = date_obj.year
+            month = date_obj.month
 
-    except UserInfo.DoesNotExist:
+            if not user_id or not date:
+                return Response({"message": "user_id and date are required"}, status=401)
 
-        return JsonResponse({"message": "UserInfo not found"}, status=402)
+            start_date = datetime.date(year, month, 1)
+            end_date = datetime.date(year, month, calendar.monthrange(year, month)[1])
+            date_range = [start_date + datetime.timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+
+            response_data = []
+
+            for day in date_range:
+
+                get_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=day)
+
+                if not get_record:
+
+                    response_element = {
+                        'score1': None,
+                        'inputText1': None,
+                        'score2': None,
+                        'inputText2': None,
+                        'score3': None,
+                        'inputText3': None
+                    }
+
+                else:
+                    record = get_record.first()
+                    response_element = {
+                        'score1': record.score_type_1,
+                        'inputText1': record.input_text_type_1,
+                        'score2': record.score_type_2,
+                        'inputText2': record.input_text_type_2,
+                        'score3': record.score_type_3,
+                        'inputText3': record.input_text_type_3
+                    }
+
+                response_data.append(response_element)
+
+            print(response_data)
+
+            return Response(response_data, status=200)
+
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=402)
+
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "EmotionDiaryRecords not found"}, status=402)
+
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
+
+    @staticmethod
+    def _update_field(user_id, date, update_record, field_name, value):
+        if update_record is None:
+
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            new_data = EmotionDiaryRecords(user_info_id=user_info_obj, date=date)
+
+            setattr(new_data, field_name, value)
+            new_data.save()
+
+        else:
+            setattr(update_record, field_name, value)
+            update_record.save()
+
+    def post(self, request):
+        try:
+            user_id = request.POST.get('user_id')
+            date = request.POST.get('date')
+            score = request.POST.get('score')
+            input_text = request.POST.get('input_text')
+            type = request.POST.get('type')
+
+            print("------")
+
+            if not user_id or not date or not type:
+                return Response({"message": "user_id, date and type are required"}, status=401)
+
+            print("------")
+
+            if type not in ['1', '2', '3']:
+                return Response({"message": "Invalid type provided"}, status=402)
+
+            print("------")
+
+            user_info_obj = UserInfo.objects.get(user_id=user_id)
+            update_record = EmotionDiaryRecords.objects.filter(user_info_id=user_info_obj, date=date).order_by(
+                'id').last()
+
+            print(score)
+            print(input_text)
+
+            if not score and not input_text:
+                return Response({"message": "score or input_text are required"}, status=201)
+            elif score is None and input_text:
+                field_name = f"input_text_type_{type}"
+                self._update_field(user_id, date, update_record, field_name, input_text)
+                return Response({"message": "input_text are successfully updated"}, status=200)
+            elif input_text is None and score:
+                field_name = f"score_type_{type}"
+                self._update_field(user_id, date, update_record, field_name, score)
+                return Response({"message": "score are successfully updated"}, status=200)
+            else:
+                return Response({"message": "Both score and input_text is sent simultaneously"}, status=201)
+
+        except UserInfo.DoesNotExist:
+            return Response({"message": "UserInfo not found"}, status=403)
+
+        except EmotionDiaryRecords.DoesNotExist:
+            return Response({"message": "No record found for the given user_id and date."}, status=403)
+
+        except Exception as e:
+            return Response({"message": "An error occurred", "error": str(e)}, status=500)
 
 
 # POST 요청으로 유저의 아이디, 날짜, 데이터 내용을 전달 받으면 해당 내용을 save 하는 함수
@@ -667,7 +779,8 @@ def get_pss10_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnairePSS10.objects.filter(user_info_id=user_info_obj,
+                                                              date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -748,7 +861,8 @@ def get_stress_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnaireStress.objects.filter(user_info_id=user_info_obj,
+                                                               date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -847,7 +961,8 @@ def get_exercise_survey(request):
 
         user_info_obj = UserInfo.objects.get(user_id=search_id)
 
-        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj, date=search_date).order_by(
+        questionnaire_obj = QuestionnaireExercise.objects.filter(user_info_id=user_info_obj,
+                                                                 date=search_date).order_by(
             'id').last()
 
         if questionnaire_obj is not None:
@@ -1109,11 +1224,14 @@ def get_all_survey_checked(request):
         is_checked_well_being_scale = (QuestionnaireWellBeingScale.objects.filter(user_info_id=user_info_obj,
                                                                                   date=search_date).count() > 0)
 
-        is_checked_phq9 = (QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_phq9 = (
+                QuestionnairePHQ9.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
-        is_checked_gad7 = (QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_gad7 = (
+                QuestionnaireGAD7.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
-        is_checked_pss10 = (QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
+        is_checked_pss10 = (
+                QuestionnairePSS10.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
 
         is_checked_stress = (
                 QuestionnaireStress.objects.filter(user_info_id=user_info_obj, date=search_date).count() > 0)
